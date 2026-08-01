@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import URLAnalysisForm
 from .models import Analysis
+from .services.pipeline import run_analysis
 
 
 def submit_url(request):
@@ -9,7 +10,7 @@ def submit_url(request):
         form = URLAnalysisForm(request.POST)
         if form.is_valid():
             url = form.cleaned_data['url']
-            analysis = Analysis.objects.create(url=url, status='pending')
+            analysis = run_analysis(url)
             return redirect('analysis:result', pk=analysis.pk)
     else:
         form = URLAnalysisForm()
