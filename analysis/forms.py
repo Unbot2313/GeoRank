@@ -2,9 +2,9 @@ from django import forms
 
 
 class URLAnalysisForm(forms.Form):
-    url = forms.URLField(
+    url = forms.CharField(
         max_length=500,
-        widget=forms.URLInput(attrs={
+        widget=forms.TextInput(attrs={
             'placeholder': 'https://example.com',
             'class': (
                 'w-full px-4 py-3 border border-gray-300 rounded-lg '
