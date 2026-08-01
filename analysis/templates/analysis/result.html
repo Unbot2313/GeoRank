@@ -1,0 +1,59 @@
+{% extends "analysis/base.html" %}
+
+{% block title %}Results - {{ analysis.url }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <p class="text-sm text-gray-500 mb-1">Analyzing</p>
+        <h1 class="text-2xl font-bold text-gray-900 break-all">{{ analysis.url }}</h1>
+    </div>
+
+    {% if analysis.status == 'completed' %}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <p class="text-sm text-gray-500 mb-1">Visibility Score</p>
+            <p class="text-5xl font-bold text-blue-600">{{ analysis.score.visibility_score }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <p class="text-sm text-gray-500 mb-1">Readability</p>
+            <p class="text-5xl font-bold text-green-600">{{ analysis.score.readability_score }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <p class="text-sm text-gray-500 mb-1">Citability</p>
+            <p class="text-5xl font-bold text-purple-600">{{ analysis.score.citability_score }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Recommendations</h2>
+        <div class="space-y-3">
+            {% for rec in analysis.recommendations.all %}
+            <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold
+                    {% if rec.priority == 1 %}bg-red-500{% elif rec.priority == 2 %}bg-yellow-500{% else %}bg-gray-400{% endif %}">
+                    {{ rec.priority }}
+                </span>
+                <div>
+                    <span class="text-xs font-semibold uppercase text-gray-500">{{ rec.category }}</span>
+                    <p class="text-gray-800">{{ rec.description }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500">No recommendations generated.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% elif analysis.status == 'failed' %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+        <h2 class="text-xl font-bold text-red-800 mb-2">Analysis Failed</h2>
+        <p class="text-red-600">{{ analysis.error_message }}</p>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'analysis:submit' %}" class="inline-block text-blue-600 hover:underline">
+        &larr; Analyze another URL
+    </a>
+</div>
+{% endblock %}
