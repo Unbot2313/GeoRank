@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 
 
@@ -10,7 +12,12 @@ def fetch_page_content(url: str) -> dict:
             'Chrome/120.0.0.0 Safari/537.36'
         )
     }
-    response = requests.get(url, headers=headers, timeout=10)
+
+    session = requests.Session()
+    retries = Retry(total=2, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+
+    response = session.get(url, headers=headers, timeout=15)
     response.raise_for_status()
 
     soup = BeautifulSoup(response.text, 'html.parser')
