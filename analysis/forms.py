@@ -13,3 +13,9 @@ class URLAnalysisForm(forms.Form):
             ),
         }),
     )
+
+    def clean_url(self):
+        url = self.cleaned_data['url']
+        if not url.startswith(('http://', 'https://')):
+            url = 'https://' + url
+        return url
