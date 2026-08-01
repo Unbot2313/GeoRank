@@ -36,6 +36,9 @@ Scope and priorities are tracked as MoSCoW-labeled issues in the [backlog](https
 | Layer | Technology |
 |---|---|
 | Backend | Python + Django 6 (MVT) |
+| AI Analysis | Google Gemini 2.5 Flash |
+| Web Scraping | requests + BeautifulSoup4 |
+| Frontend | Tailwind CSS (CDN) |
 | Database | SQLite |
 | Dependency management | uv |
 | Version control | Git + GitHub |
@@ -76,14 +79,23 @@ cd GeoRank
 uv sync
 ```
 
-**3. Apply migrations and create a superuser**
+**3. Set up environment variables**
+
+Get a free API key from [Google AI Studio](https://aistudio.google.com/apikey), then:
+
+```bash
+cp .env.example .env
+# Edit .env and add your GEMINI_API_KEY
+```
+
+**4. Apply migrations and create a superuser**
 
 ```bash
 uv run python manage.py migrate
 uv run python manage.py createsuperuser
 ```
 
-**4. Run the development server**
+**5. Run the development server**
 
 ```bash
 uv run python manage.py runserver
@@ -106,17 +118,27 @@ committed so every member gets identical versions.
 
 ```
 GeoRank/
-├── georank/          # Project settings, main URLs, WSGI/ASGI
+├── georank/              # Project settings, main URLs, WSGI/ASGI
 │   ├── settings.py
 │   ├── urls.py
 │   ├── wsgi.py
 │   └── asgi.py
+├── analysis/             # URL analysis feature app
+│   ├── models.py         # Analysis, Score, Recommendation
+│   ├── views.py          # Submit URL, view results
+│   ├── forms.py          # URL input form
+│   ├── urls.py           # App routes
+│   ├── services/
+│   │   ├── scraper.py    # Web content extraction
+│   │   ├── gemini.py     # Gemini API integration
+│   │   └── pipeline.py   # Analysis orchestration
+│   └── templates/
+│       └── analysis/     # HTML templates (Tailwind)
+├── .env.example          # Environment variables template
 ├── manage.py
-├── pyproject.toml    # Dependencies
-└── uv.lock           # Pinned versions
+├── pyproject.toml        # Dependencies
+└── uv.lock               # Pinned versions
 ```
-
-Feature apps will be added as development progresses.
 
 ## Contributing
 
