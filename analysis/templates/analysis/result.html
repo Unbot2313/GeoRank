@@ -51,7 +51,17 @@
     {% elif analysis.status == 'failed' %}
     <div class="bg-red-50 border border-red-200 rounded-2xl p-6">
         <h2 class="text-xl font-bold text-red-800 mb-2">Analysis Failed</h2>
-        <p class="text-red-600">{{ analysis.error_message }}</p>
+        <p class="text-red-600">
+            {% if 'Failed to resolve' in analysis.error_message %}
+                Could not reach this website. Please check the URL and try again.
+            {% elif 'Connection' in analysis.error_message %}
+                Could not connect to this website. It may be down or blocking our request.
+            {% elif 'timed out' in analysis.error_message or 'Timeout' in analysis.error_message %}
+                The website took too long to respond. Please try again later.
+            {% else %}
+                Something went wrong while analyzing this website. Please try a different URL.
+            {% endif %}
+        </p>
     </div>
 
     {% else %}
