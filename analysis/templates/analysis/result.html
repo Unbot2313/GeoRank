@@ -71,8 +71,20 @@
     </div>
     {% endif %}
 
-    <a href="{% url 'analysis:submit' %}" class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+    <div class="flex flex-wrap gap-4">
+
+    {% if analysis.status == 'completed' %}
+    <a href="{% url 'analysis:score_history' analysis.pk %}"
+       class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+        View score history
+    </a>
+    {% endif %}
+
+    <a href="{% url 'analysis:submit' %}"
+       class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
         &larr; Analyze another URL
     </a>
+
+</div>
 </div>
 {% endblock %}

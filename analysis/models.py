@@ -27,8 +27,12 @@ class UserProfile(models.Model):
         return f"{self.user.username} ({self.plan_type})"
 
     def analyses_today_count(self):
-        today = timezone.localdate()
-        return self.user.analyses.filter(created_at__date=today).count()
+       today = timezone.localdate()
+
+       return self.user.analyses.filter(
+         created_at__date=today,
+         status='completed',
+       ).count()
 
     def can_run_analysis(self):
         if self.plan_type == 'pro':

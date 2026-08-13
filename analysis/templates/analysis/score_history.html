@@ -1,0 +1,98 @@
+{% extends "analysis/base.html" %}
+
+{% block title %}Score History{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+            Score history
+        </h1>
+
+        <p class="text-gray-600">
+            Track how this website's GEO scores change over time.
+        </p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <p class="text-sm text-gray-500 mb-1">
+            Website
+        </p>
+
+        <p class="text-lg font-semibold text-gray-900 break-all">
+            {{ selected_analysis.url }}
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        {% for analysis in analyses %}
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
+
+                <p class="font-medium text-gray-900">
+                    {{ analysis.created_at|date:"d M Y, H:i" }}
+                </p>
+
+                <a href="{% url 'analysis:result' analysis.pk %}"
+                   class="text-sm text-blue-600 hover:underline">
+                    View report
+                </a>
+
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                <div class="bg-blue-50 rounded-xl p-4 text-center">
+                    <p class="text-sm text-gray-500 mb-1">
+                        Visibility
+                    </p>
+
+                    <p class="text-3xl font-bold text-blue-600">
+                        {{ analysis.score.visibility_score }}
+                    </p>
+                </div>
+
+                <div class="bg-green-50 rounded-xl p-4 text-center">
+                    <p class="text-sm text-gray-500 mb-1">
+                        Readability
+                    </p>
+
+                    <p class="text-3xl font-bold text-green-600">
+                        {{ analysis.score.readability_score }}
+                    </p>
+                </div>
+
+                <div class="bg-purple-50 rounded-xl p-4 text-center">
+                    <p class="text-sm text-gray-500 mb-1">
+                        Citability
+                    </p>
+
+                    <p class="text-3xl font-bold text-purple-600">
+                        {{ analysis.score.citability_score }}
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        {% empty %}
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+            <p class="text-gray-500">
+                No completed analyses are available for this website yet.
+            </p>
+        </div>
+
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'analysis:history' %}"
+       class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+        &larr; Back to history
+    </a>
+
+</div>
+{% endblock %}

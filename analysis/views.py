@@ -126,6 +126,33 @@ def analysis_history(request):
         {'analyses': analyses},
     )
 
+@login_required
+def score_history(request, pk):
+    selected_analysis = get_object_or_404(
+        Analysis,
+        pk=pk,
+        user=request.user,
+    )
+
+    analyses = (
+        Analysis.objects
+        .filter(
+            user=request.user,
+            url=selected_analysis.url,
+            status='completed',
+        )
+        .select_related('score')
+        .order_by('-created_at')
+    )
+
+    return render(
+        request,
+        'analysis/score_history.html',
+        {
+            'selected_analysis': selected_analysis,
+            'analyses': analyses,
+        },
+    )
 
 @login_required
 def profile_view(request):
