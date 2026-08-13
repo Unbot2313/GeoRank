@@ -20,14 +20,25 @@ ChatGPT, Perplexity, and Gemini.
 
 ## Features
 
-- **URL analysis:** submit a website URL and get it analyzed, with validation and clear error handling when a site is unreachable or times out.
-- **AI visibility score:** a single score summarizing how likely the business is to be surfaced by AI assistants.
-- **Readability report:** a content readability and citability breakdown of the analyzed site.
-- **Recommendations:** a prioritized, non-technical list of actions to improve visibility.
-- **Accounts:** email and password registration and login, with the dashboard restricted to authenticated users.
-- **Competitor comparison:** measure the visibility score against selected competitors.
-- **PDF export:** download the full report.
-- **Score history:** track visibility improvements over time.
+### Implemented
+
+- URL analysis: submit a website URL and get it analyzed, with validation and clear error handling when a site is unreachable or times out.
+- AI visibility score: a single score summarizing how likely the business is to be surfaced by AI assistants.
+- Readability and citability scores: evaluate how understandable and usable the site's content is for AI systems.
+- Recommendations: a prioritized, non-technical list of actions to improve visibility.
+- Accounts: user registration, login, logout, password validation, and authenticated access to the platform.
+- User profile: update username, email, company name, and industry sector.
+- Free plan limits: Free users can perform up to 3 successful analyses per day. Failed analyses do not consume the daily limit.
+- Analysis history: users can review previous completed and failed analyses.
+- Score history: track Visibility, Readability, and Citability scores for the same website over time.
+
+### Planned for future deliveries
+
+- Competitor comparison: register competitors and compare their AI visibility scores against the user's website.
+- PDF export: download the full analysis report as a PDF.
+- Email notifications: notify users when an analysis report is ready.
+- Password recovery: reset forgotten passwords through email.
+- More specialized recommendations based on the company's industry sector.
 
 Scope and priorities are tracked as MoSCoW-labeled issues in the [backlog](https://github.com/users/Unbot2313/projects/6).
 
