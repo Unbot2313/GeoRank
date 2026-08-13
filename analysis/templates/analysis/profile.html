@@ -1,0 +1,108 @@
+{% extends "analysis/base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+            Profile
+        </h1>
+
+        <p class="text-gray-600">
+            Manage your account and company information.
+        </p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+
+        <div class="mb-6 pb-6 border-b border-gray-100">
+            <p class="text-sm text-gray-500 mb-1">Current plan</p>
+
+            <p class="text-lg font-semibold text-gray-900">
+                {{ profile.get_plan_type_display }}
+            </p>
+
+            {% if profile.plan_type == 'free' %}
+            <p class="text-sm text-gray-500 mt-1">
+                {{ profile.remaining_today }} of {{ profile.FREE_DAILY_LIMIT }}
+                analyses available today.
+            </p>
+            {% else %}
+            <p class="text-sm text-gray-500 mt-1">
+                Unlimited analyses.
+            </p>
+            {% endif %}
+        </div>
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+
+            <div>
+                <label for="{{ form.username.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 mb-2">
+                    Username
+                </label>
+
+                {{ form.username }}
+
+                {% if form.username.errors %}
+                <p class="mt-2 text-sm text-red-500">
+                    {{ form.username.errors.0 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.email.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 mb-2">
+                    Email
+                </label>
+
+                {{ form.email }}
+
+                {% if form.email.errors %}
+                <p class="mt-2 text-sm text-red-500">
+                    {{ form.email.errors.0 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.company_name.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 mb-2">
+                    Company name
+                </label>
+
+                {{ form.company_name }}
+
+                {% if form.company_name.errors %}
+                <p class="mt-2 text-sm text-red-500">
+                    {{ form.company_name.errors.0 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.industry_sector.id_for_label }}"
+                       class="block text-sm font-medium text-gray-700 mb-2">
+                    Industry sector
+                </label>
+
+                {{ form.industry_sector }}
+
+                {% if form.industry_sector.errors %}
+                <p class="mt-2 text-sm text-red-500">
+                    {{ form.industry_sector.errors.0 }}
+                </p>
+                {% endif %}
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm">
+                Save changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
