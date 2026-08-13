@@ -10,6 +10,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('submit/', views.submit_url, name='submit'),
     path('history/', views.analysis_history, name='history'),
+    path('score-history/<int:pk>/', views.score_history, name='score_history'),
     path('profile/', views.profile_view, name='profile'),
     path('<int:pk>/', views.analysis_result, name='result'),
 ]
