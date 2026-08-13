@@ -67,3 +67,70 @@ class LoginForm(forms.Form):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': INPUT_CLASSES, 'placeholder': '••••••••'}),
     )
+
+class ProfileUpdateForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': INPUT_CLASSES,
+            'placeholder': 'username',
+        }),
+    )
+
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': INPUT_CLASSES,
+            'placeholder': 'you@example.com',
+        }),
+    )
+
+    company_name = forms.CharField(
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': INPUT_CLASSES,
+            'placeholder': 'Company name',
+        }),
+    )
+
+    industry_sector = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': INPUT_CLASSES,
+            'placeholder': 'Technology, Healthcare, Retail...',
+        }),
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+        if user:
+            self.fields['username'].initial = user.username
+            self.fields['email'].initial = user.email
+            self.fields['company_name'].initial = user.profile.company_name
+            self.fields['industry_sector'].initial = user.profile.industry_sector
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+
+        if User.objects.exclude(pk=self.user.pk).filter(username=username).exists():
+            raise forms.ValidationError('This username is already in use.')
+
+        return username
+
+    def save(self):
+        user = self.user
+        profile = user.profile
+
+        user.username = self.cleaned_data['username']
+        user.email = self.cleaned_data['email']
+        user.save()
+
+        profile.company_name = self.cleaned_data['company_name']
+        profile.industry_sector = self.cleaned_data['industry_sector']
+        profile.save()
+
+        return user    
