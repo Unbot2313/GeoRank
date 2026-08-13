@@ -90,6 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 10},
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -118,3 +119,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'analysis:login'
+LOGIN_REDIRECT_URL = 'analysis:submit'
+LOGOUT_REDIRECT_URL = 'analysis:login'
+
+# Auto-logout: cierra la sesión tras 30 min de inactividad...
+SESSION_COOKIE_AGE = 1800  # segundos
+SESSION_SAVE_EVERY_REQUEST = True  # cada request activo reinicia el contador de inactividad
+# ...y también al cerrar el navegador/pestaña
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

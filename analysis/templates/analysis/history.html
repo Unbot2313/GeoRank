@@ -1,0 +1,37 @@
+{% extends "analysis/base.html" %}
+
+{% block title %}History{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Your history</h1>
+    <p class="text-gray-600">All the analyses you've run.</p>
+</div>
+
+<div class="space-y-3">
+    {% for analysis in analyses %}
+    <a href="{% url 'analysis:result' analysis.pk %}"
+       class="block bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:border-blue-200 transition">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="min-w-0">
+                <p class="text-gray-900 font-medium break-all">{{ analysis.url }}</p>
+                <p class="text-sm text-gray-400">{{ analysis.created_at|date:"d M Y, H:i" }}</p>
+            </div>
+            <span class="self-start sm:self-auto shrink-0 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                {% if analysis.status == 'completed' %}bg-green-100 text-green-700
+                {% elif analysis.status == 'failed' %}bg-red-100 text-red-700
+                {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                {{ analysis.get_status_display }}
+            </span>
+        </div>
+    </a>
+    {% empty %}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+        <p class="text-gray-500">You haven't run any analysis yet.</p>
+        <a href="{% url 'analysis:submit' %}" class="text-blue-600 font-medium hover:underline mt-2 inline-block">
+            Analyze your first site
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

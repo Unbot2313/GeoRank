@@ -3,8 +3,8 @@ from .scraper import fetch_page_content
 from .gemini import analyze_with_gemini
 
 
-def run_analysis(url: str) -> Analysis:
-    analysis = Analysis.objects.create(url=url, status='pending')
+def run_analysis(url: str, user=None) -> Analysis:
+    analysis = Analysis.objects.create(url=url, status='pending', user=user)
 
     try:
         content = fetch_page_content(url)
