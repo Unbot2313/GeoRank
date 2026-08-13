@@ -19,6 +19,8 @@ class UserProfile(models.Model):
         related_name='profile',
     )
     plan_type = models.CharField(max_length=10, choices=PLAN_CHOICES, default='free')
+    company_name = models.CharField(max_length=150, blank=True)
+    industry_sector = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
