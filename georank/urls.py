@@ -18,8 +18,16 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import include, path
 
+from django.shortcuts import redirect
+
+def home_redirect(request):
+    if request.user.is_authenticated:
+        return redirect('analysis:submit')
+    return redirect('accounts:login')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', lambda r: redirect('analysis:submit')),
+    path('', home_redirect),
+    path('', include('accounts.urls')),
     path('', include('analysis.urls')),
 ]
