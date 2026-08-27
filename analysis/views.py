@@ -1,58 +1,10 @@
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import LoginForm, ProfileUpdateForm, RegisterForm, URLAnalysisForm
+from .forms import URLAnalysisForm
 from .models import Analysis
 from .services.pipeline import run_analysis
-
-
-def register_view(request):
-    if request.user.is_authenticated:
-        return redirect('analysis:submit')
-
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Cuenta creada correctamente.')
-            return redirect('analysis:submit')
-    else:
-        form = RegisterForm()
-
-    return render(request, 'analysis/register.html', {'form': form})
-
-
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('analysis:submit')
-
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-
-        if form.is_valid():
-            user = authenticate(
-                request,
-                username=form.cleaned_data['username'],
-                password=form.cleaned_data['password'],
-            )
-
-            if user is not None:
-                login(request, user)
-                return redirect('analysis:submit')
-
-            form.add_error(None, 'Usuario o contraseña incorrectos.')
-    else:
-        form = LoginForm()
-
-    return render(request, 'analysis/login.html', {'form': form})
-
-
-def logout_view(request):
-    logout(request)
-    return redirect('analysis:login')
 
 
 @login_required
@@ -126,6 +78,7 @@ def analysis_history(request):
         {'analyses': analyses},
     )
 
+
 @login_required
 def score_history(request, pk):
     selected_analysis = get_object_or_404(
@@ -151,33 +104,5 @@ def score_history(request, pk):
         {
             'selected_analysis': selected_analysis,
             'analyses': analyses,
-        },
-    )
-
-@login_required
-def profile_view(request):
-    if request.method == 'POST':
-        form = ProfileUpdateForm(
-            request.POST,
-            user=request.user,
-        )
-
-        if form.is_valid():
-            form.save()
-            messages.success(
-                request,
-                'Profile updated successfully.',
-            )
-
-            return redirect('analysis:profile')
-    else:
-        form = ProfileUpdateForm(user=request.user)
-
-    return render(
-        request,
-        'analysis/profile.html',
-        {
-            'profile': request.user.profile,
-            'form': form,
         },
     )

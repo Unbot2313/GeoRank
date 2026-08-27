@@ -14,7 +14,7 @@
     {% if profile.plan_type == 'free' %}
     <p class="text-center text-sm text-gray-500 mb-4">
         Free Plan &middot; {{ profile.remaining_today }} of {{ profile.FREE_DAILY_LIMIT }} analyses available today
-        &middot; <a href="{% url 'analysis:profile' %}" class="text-blue-600 hover:underline">view profile</a>
+        &middot; <a href="{% url 'accounts:profile' %}" class="text-blue-600 hover:underline">view profile</a>
     </p>
     {% endif %}
 
