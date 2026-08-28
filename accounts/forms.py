@@ -14,6 +14,14 @@ class RegisterForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(attrs={'class': INPUT_CLASSES, 'placeholder': 'you@example.com'}),
     )
+    industry_sector = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': INPUT_CLASSES,
+            'placeholder': 'e.g. Insurance, Retail, Healthcare...',
+        }),
+    )
 
     class Meta:
         model = User
@@ -36,6 +44,9 @@ class RegisterForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
+            # el signal post_save ya creó el UserProfile vacío en este punto
+            user.profile.industry_sector = self.cleaned_data['industry_sector']
+            user.profile.save()
         return user
 
 

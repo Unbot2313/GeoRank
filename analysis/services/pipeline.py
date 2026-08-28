@@ -4,14 +4,23 @@ from .gemini import analyze_with_gemini
 
 
 def run_analysis(url: str, user=None) -> Analysis:
-    analysis = Analysis.objects.create(url=url, status='pending', user=user)
+    industry_sector = ''
+    if user is not None and hasattr(user, 'profile'):
+        industry_sector = user.profile.industry_sector or ''
+
+    analysis = Analysis.objects.create(
+        url=url,
+        status='pending',
+        user=user,
+        industry_sector=industry_sector,
+    )
 
     try:
         content = fetch_page_content(url)
         analysis.raw_content = str(content)
         analysis.save()
 
-        result = analyze_with_gemini(content)
+        result = analyze_with_gemini(content, industry_sector=industry_sector)
 
         Score.objects.create(
             analysis=analysis,
@@ -25,6 +34,14 @@ def run_analysis(url: str, user=None) -> Analysis:
                 analysis=analysis,
                 priority=rec['priority'],
                 category=rec['category'],
+                description=rec['description'],
+            )
+
+        for rec in result.get('sector_recommendations', []):
+            Recommendation.objects.create(
+                analysis=analysis,
+                priority=rec['priority'],
+                category='sector',
                 description=rec['description'],
             )
 

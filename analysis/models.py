@@ -20,6 +20,7 @@ class Analysis(models.Model):
     )
     url = models.URLField(max_length=500)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    industry_sector = models.CharField(max_length=100, blank=True)
     raw_content = models.TextField(blank=True)
     error_message = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -64,7 +64,11 @@ def analysis_result(request, pk):
     return render(
         request,
         'analysis/result.html',
-        {'analysis': analysis},
+        {
+            'analysis': analysis,
+            'general_recommendations': analysis.recommendations.exclude(category='sector'),
+            'sector_recommendations': analysis.recommendations.filter(category='sector'),
+        },
     )
 
 

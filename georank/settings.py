@@ -120,10 +120,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-LOGIN_URL = 'analysis:login'
+LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'analysis:submit'
-LOGOUT_REDIRECT_URL = 'analysis:login'
+LOGOUT_REDIRECT_URL = 'accounts:login'
 
 # Auto-logout: cierra la sesión tras 30 min de inactividad...
 SESSION_COOKIE_AGE = 1800  # segundos
