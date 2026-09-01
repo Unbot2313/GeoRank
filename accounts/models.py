@@ -36,6 +36,7 @@ class UserProfile(models.Model):
         return self.user.analyses.filter(
             created_at__date=today,
             status='completed',
+            competitor__isnull=True,
         ).count()
 
     def can_run_analysis(self):

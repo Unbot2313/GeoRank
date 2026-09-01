@@ -3,7 +3,7 @@ from .scraper import fetch_page_content
 from .gemini import analyze_with_gemini
 
 
-def run_analysis(url: str, user=None) -> Analysis:
+def run_analysis(url: str, user=None, competitor=None) -> Analysis:
     industry_sector = ''
     if user is not None and hasattr(user, 'profile'):
         industry_sector = user.profile.industry_sector or ''
@@ -12,6 +12,7 @@ def run_analysis(url: str, user=None) -> Analysis:
         url=url,
         status='pending',
         user=user,
+        competitor=competitor,
         industry_sector=industry_sector,
     )
 

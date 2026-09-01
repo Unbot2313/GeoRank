@@ -2,8 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import URLAnalysisForm
-from .models import Analysis
+from .forms import CompetitorForm, URLAnalysisForm
+from .models import Analysis, Competitor
 from .services.pipeline import run_analysis
 
 
@@ -74,7 +74,11 @@ def analysis_result(request, pk):
 
 @login_required
 def analysis_history(request):
-    analyses = request.user.analyses.all().order_by('-created_at')
+    analyses = (
+        request.user.analyses
+        .filter(competitor__isnull=True)
+        .order_by('-created_at')
+    )
 
     return render(
         request,
@@ -97,6 +101,7 @@ def score_history(request, pk):
             user=request.user,
             url=selected_analysis.url,
             status='completed',
+            competitor__isnull=True,
         )
         .select_related('score')
         .order_by('-created_at')
@@ -108,5 +113,41 @@ def score_history(request, pk):
         {
             'selected_analysis': selected_analysis,
             'analyses': analyses,
+        },
+    )
+
+@login_required
+def competitor_list(request):
+    if request.method == 'POST':
+        form = CompetitorForm(request.POST, user=request.user)
+
+        if form.is_valid():
+            competitor = Competitor.objects.create(
+                user=request.user,
+                name=form.cleaned_data['name'],
+                url=form.cleaned_data['url'],
+            )
+            run_analysis(
+                competitor.url,
+                user=request.user,
+                competitor=competitor,
+            )
+            messages.success(request, 'Competitor registered and analyzed.')
+
+            return redirect('analysis:competitors')
+    else:
+        form = CompetitorForm(user=request.user)
+
+    competitors = [
+        {'competitor': c, 'analysis': c.latest_analysis()}
+        for c in request.user.competitors.all()
+    ]
+
+    return render(
+        request,
+        'analysis/competitors.html',
+        {
+            'form': form,
+            'competitors': competitors,
         },
     )
