@@ -121,7 +121,19 @@ def score_history(request, pk):
 
 @login_required
 def competitor_list(request):
+    competitor_count = request.user.competitors.count()
+    limit_reached = competitor_count >= Competitor.MAX_PER_USER
+
     if request.method == 'POST':
+        if limit_reached:
+            messages.error(
+                request,
+                'You reached the limit of '
+                f'{Competitor.MAX_PER_USER} competitors.',
+            )
+
+            return redirect('analysis:competitors')
+
         form = CompetitorForm(request.POST, user=request.user)
 
         if form.is_valid():
@@ -163,6 +175,9 @@ def competitor_list(request):
         {
             'form': form,
             'competitors': competitors,
+            'competitor_count': competitor_count,
+            'competitor_limit': Competitor.MAX_PER_USER,
+            'limit_reached': limit_reached,
         },
     )
 
