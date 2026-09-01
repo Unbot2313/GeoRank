@@ -1,6 +1,32 @@
+from urllib.parse import urlparse, urlunparse
+
 from django import forms
+from django.core.validators import URLValidator
 
 from .models import Competitor
+
+
+def normalize_url(raw: str) -> str:
+    """Normalise a user-supplied URL so the same site is not stored twice."""
+    url = raw.strip()
+    if not url.lower().startswith(('http://', 'https://')):
+        url = 'https://' + url
+
+    parsed = urlparse(url)
+    if not parsed.netloc:
+        raise forms.ValidationError('Enter a valid URL.')
+
+    url = urlunparse((
+        parsed.scheme.lower(),
+        parsed.netloc.lower(),
+        parsed.path.rstrip('/'),
+        parsed.params,
+        parsed.query,
+        '',
+    ))
+
+    URLValidator()(url)
+    return url
 
 
 class URLAnalysisForm(forms.Form):
@@ -36,7 +62,7 @@ class CompetitorForm(forms.Form):
         }),
     )
     url = forms.CharField(
-        max_length=500,
+        max_length=480,
         widget=forms.TextInput(attrs={
             'placeholder': 'https://competitor.com',
             'class': (
@@ -52,9 +78,7 @@ class CompetitorForm(forms.Form):
         self.user = user
 
     def clean_url(self):
-        url = self.cleaned_data['url']
-        if not url.startswith(('http://', 'https://')):
-            url = 'https://' + url
+        url = normalize_url(self.cleaned_data['url'])
         if self.user and Competitor.objects.filter(user=self.user, url=url).exists():
             raise forms.ValidationError('You already registered this competitor.')
         return url

@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CompetitorForm, URLAnalysisForm
@@ -59,6 +60,7 @@ def analysis_result(request, pk):
         Analysis,
         pk=pk,
         user=request.user,
+        competitor__isnull=True,
     )
 
     return render(
@@ -93,6 +95,7 @@ def score_history(request, pk):
         Analysis,
         pk=pk,
         user=request.user,
+        competitor__isnull=True,
     )
 
     analyses = (
@@ -122,19 +125,30 @@ def competitor_list(request):
         form = CompetitorForm(request.POST, user=request.user)
 
         if form.is_valid():
-            competitor = Competitor.objects.create(
-                user=request.user,
-                name=form.cleaned_data['name'],
-                url=form.cleaned_data['url'],
-            )
-            run_analysis(
-                competitor.url,
-                user=request.user,
-                competitor=competitor,
-            )
-            messages.success(request, 'Competitor registered and analyzed.')
+            try:
+                competitor = Competitor.objects.create(
+                    user=request.user,
+                    name=form.cleaned_data['name'],
+                    url=form.cleaned_data['url'],
+                )
+            except IntegrityError:
+                form.add_error('url', 'You already registered this competitor.')
+            else:
+                analysis = run_analysis(
+                    competitor.url,
+                    user=request.user,
+                    competitor=competitor,
+                )
 
-            return redirect('analysis:competitors')
+                if analysis.status == 'failed':
+                    messages.warning(
+                        request,
+                        'Competitor registered, but we could not analyze its site yet.',
+                    )
+                else:
+                    messages.success(request, 'Competitor registered and analyzed.')
+
+                return redirect('analysis:competitors')
     else:
         form = CompetitorForm(user=request.user)
 
@@ -169,7 +183,9 @@ def comparison(request, pk):
         'is_own': True,
     }]
 
-    for competitor in request.user.competitors.all():
+    competitors = list(request.user.competitors.all())
+
+    for competitor in competitors:
         latest = competitor.latest_analysis()
         rows.append({
             'name': str(competitor),
@@ -192,5 +208,6 @@ def comparison(request, pk):
             'analysis': analysis,
             'ranked': ranked,
             'unscored': unscored,
+            'has_competitors': bool(competitors),
         },
     )

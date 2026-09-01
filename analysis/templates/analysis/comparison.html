@@ -44,7 +44,7 @@
         </div>
         {% endif %}
 
-        {% if ranked|length == 1 and not unscored %}
+        {% if not has_competitors %}
         <p class="text-gray-500 text-center py-4">
             Register a competitor to compare your score against it.
         </p>
