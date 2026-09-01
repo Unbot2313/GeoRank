@@ -1,8 +1,32 @@
-import uuid
-
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
+
+
+class Competitor(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='competitors',
+    )
+    name = models.CharField(max_length=150, blank=True)
+    url = models.URLField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ('user', 'url')
+
+    def __str__(self):
+        return self.name or self.url
+
+    def latest_analysis(self):
+        return (
+            self.analyses
+            .filter(status='completed')
+            .select_related('score')
+            .order_by('-created_at')
+            .first()
+        )
 
 
 class Analysis(models.Model):
@@ -13,6 +37,13 @@ class Analysis(models.Model):
     ]
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='analyses',
+        null=True,
+        blank=True,
+    )
+    competitor = models.ForeignKey(
+        Competitor,
         on_delete=models.CASCADE,
         related_name='analyses',
         null=True,

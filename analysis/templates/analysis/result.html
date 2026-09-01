@@ -101,6 +101,11 @@
        class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
         View score history
     </a>
+
+    <a href="{% url 'analysis:comparison' analysis.pk %}"
+       class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+        Compare with competitors
+    </a>
     {% endif %}
 
     <a href="{% url 'analysis:submit' %}"

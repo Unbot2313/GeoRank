@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import URLAnalysisForm
-from .models import Analysis
+from .forms import CompetitorForm, URLAnalysisForm
+from .models import Analysis, Competitor
 from .services.pipeline import run_analysis
 
 
@@ -59,6 +60,7 @@ def analysis_result(request, pk):
         Analysis,
         pk=pk,
         user=request.user,
+        competitor__isnull=True,
     )
 
     return render(
@@ -74,7 +76,11 @@ def analysis_result(request, pk):
 
 @login_required
 def analysis_history(request):
-    analyses = request.user.analyses.all().order_by('-created_at')
+    analyses = (
+        request.user.analyses
+        .filter(competitor__isnull=True)
+        .order_by('-created_at')
+    )
 
     return render(
         request,
@@ -89,6 +95,7 @@ def score_history(request, pk):
         Analysis,
         pk=pk,
         user=request.user,
+        competitor__isnull=True,
     )
 
     analyses = (
@@ -97,6 +104,7 @@ def score_history(request, pk):
             user=request.user,
             url=selected_analysis.url,
             status='completed',
+            competitor__isnull=True,
         )
         .select_related('score')
         .order_by('-created_at')
@@ -108,5 +116,98 @@ def score_history(request, pk):
         {
             'selected_analysis': selected_analysis,
             'analyses': analyses,
+        },
+    )
+
+@login_required
+def competitor_list(request):
+    if request.method == 'POST':
+        form = CompetitorForm(request.POST, user=request.user)
+
+        if form.is_valid():
+            try:
+                competitor = Competitor.objects.create(
+                    user=request.user,
+                    name=form.cleaned_data['name'],
+                    url=form.cleaned_data['url'],
+                )
+            except IntegrityError:
+                form.add_error('url', 'You already registered this competitor.')
+            else:
+                analysis = run_analysis(
+                    competitor.url,
+                    user=request.user,
+                    competitor=competitor,
+                )
+
+                if analysis.status == 'failed':
+                    messages.warning(
+                        request,
+                        'Competitor registered, but we could not analyze its site yet.',
+                    )
+                else:
+                    messages.success(request, 'Competitor registered and analyzed.')
+
+                return redirect('analysis:competitors')
+    else:
+        form = CompetitorForm(user=request.user)
+
+    competitors = [
+        {'competitor': c, 'analysis': c.latest_analysis()}
+        for c in request.user.competitors.all()
+    ]
+
+    return render(
+        request,
+        'analysis/competitors.html',
+        {
+            'form': form,
+            'competitors': competitors,
+        },
+    )
+
+
+@login_required
+def comparison(request, pk):
+    analysis = get_object_or_404(
+        Analysis,
+        pk=pk,
+        user=request.user,
+        competitor__isnull=True,
+    )
+
+    rows = [{
+        'name': 'Your website',
+        'url': analysis.url,
+        'score': analysis.score.visibility_score if hasattr(analysis, 'score') else None,
+        'is_own': True,
+    }]
+
+    competitors = list(request.user.competitors.all())
+
+    for competitor in competitors:
+        latest = competitor.latest_analysis()
+        rows.append({
+            'name': str(competitor),
+            'url': competitor.url,
+            'score': latest.score.visibility_score if latest else None,
+            'is_own': False,
+        })
+
+    ranked = sorted(
+        [r for r in rows if r['score'] is not None],
+        key=lambda r: r['score'],
+        reverse=True,
+    )
+    unscored = [r for r in rows if r['score'] is None]
+
+    return render(
+        request,
+        'analysis/comparison.html',
+        {
+            'analysis': analysis,
+            'ranked': ranked,
+            'unscored': unscored,
+            'has_competitors': bool(competitors),
         },
     )
