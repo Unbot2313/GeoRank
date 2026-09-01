@@ -151,3 +151,46 @@ def competitor_list(request):
             'competitors': competitors,
         },
     )
+
+
+@login_required
+def comparison(request, pk):
+    analysis = get_object_or_404(
+        Analysis,
+        pk=pk,
+        user=request.user,
+        competitor__isnull=True,
+    )
+
+    rows = [{
+        'name': 'Your website',
+        'url': analysis.url,
+        'score': analysis.score.visibility_score if hasattr(analysis, 'score') else None,
+        'is_own': True,
+    }]
+
+    for competitor in request.user.competitors.all():
+        latest = competitor.latest_analysis()
+        rows.append({
+            'name': str(competitor),
+            'url': competitor.url,
+            'score': latest.score.visibility_score if latest else None,
+            'is_own': False,
+        })
+
+    ranked = sorted(
+        [r for r in rows if r['score'] is not None],
+        key=lambda r: r['score'],
+        reverse=True,
+    )
+    unscored = [r for r in rows if r['score'] is None]
+
+    return render(
+        request,
+        'analysis/comparison.html',
+        {
+            'analysis': analysis,
+            'ranked': ranked,
+            'unscored': unscored,
+        },
+    )

@@ -9,5 +9,6 @@ urlpatterns = [
     path('history/', views.analysis_history, name='history'),
     path('competitors/', views.competitor_list, name='competitors'),
     path('score-history/<int:pk>/', views.score_history, name='score_history'),
+    path('compare/<int:pk>/', views.comparison, name='comparison'),
     path('<int:pk>/', views.analysis_result, name='result'),
 ]

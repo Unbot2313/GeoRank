@@ -1,0 +1,63 @@
+{% extends "analysis/base.html" %}
+
+{% block title %}Comparison - {{ analysis.url }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <p class="text-sm text-gray-500 mb-1">Comparing</p>
+        <h1 class="text-2xl font-bold text-gray-900 break-all">{{ analysis.url }}</h1>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">AI visibility ranking</h2>
+        <div class="space-y-3">
+            {% for row in ranked %}
+            <div class="flex items-center gap-4 p-4 rounded-xl
+                {% if row.is_own %}bg-blue-50 border border-blue-200{% else %}bg-gray-50{% endif %}">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold flex-shrink-0
+                    {% if row.is_own %}bg-blue-600 text-white{% else %}bg-gray-300 text-gray-700{% endif %}">
+                    {{ forloop.counter }}
+                </span>
+                <div class="min-w-0 flex-1">
+                    <p class="font-medium text-gray-900">{{ row.name }}</p>
+                    <p class="text-sm text-gray-400 break-all">{{ row.url }}</p>
+                </div>
+                <p class="text-3xl font-bold shrink-0 {% if row.is_own %}text-blue-600{% else %}text-gray-500{% endif %}">
+                    {{ row.score }}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if unscored %}
+        <div class="mt-6 pt-6 border-t border-gray-100">
+            <p class="text-sm font-medium text-gray-500 mb-3">Not scored yet</p>
+            <div class="space-y-2">
+                {% for row in unscored %}
+                <div class="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600 break-all">{{ row.name }}</p>
+                    <span class="text-xs text-gray-400 shrink-0">no score</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if ranked|length == 1 and not unscored %}
+        <p class="text-gray-500 text-center py-4">
+            Register a competitor to compare your score against it.
+        </p>
+        {% endif %}
+    </div>
+
+    <div class="flex flex-wrap gap-4">
+        <a href="{% url 'analysis:competitors' %}" class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+            Manage competitors
+        </a>
+        <a href="{% url 'analysis:result' analysis.pk %}" class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+            &larr; Back to results
+        </a>
+    </div>
+</div>
+{% endblock %}
