@@ -3,6 +3,8 @@ from django.db import models
 
 
 class Competitor(models.Model):
+    MAX_PER_USER = 10
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
