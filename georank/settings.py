@@ -129,3 +129,8 @@ SESSION_COOKIE_AGE = 1800  # segundos
 SESSION_SAVE_EVERY_REQUEST = True  # cada request activo reinicia el contador de inactividad
 # ...y también al cerrar el navegador/pestaña
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Email configuration for development.
+# Emails are printed in the terminal instead of being sent.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'GeoRank <noreply@georank.local>'
