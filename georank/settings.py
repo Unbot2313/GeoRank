@@ -134,3 +134,5 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Emails are printed in the terminal instead of being sent.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'GeoRank <noreply@georank.local>'
+
+SITE_URL = 'http://127.0.0.1:8000'
