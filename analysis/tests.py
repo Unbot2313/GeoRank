@@ -3,7 +3,14 @@ from django.test import TestCase
 from django.urls import reverse
 
 from accounts.models import Company
-from analysis.models import Analysis
+from analysis.models import Analysis, Competitor
+
+from unittest.mock import patch
+
+from django.core import mail
+from django.test import override_settings
+
+from analysis.services.pipeline import run_analysis
 
 
 class CompanyReportAccessTests(TestCase):
@@ -123,3 +130,188 @@ class CompanyReportAccessTests(TestCase):
 
         self.assertEqual(own_response.status_code, 200)
         self.assertEqual(other_response.status_code, 404)
+
+@override_settings(
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+    SITE_URL='http://testserver',
+    DEFAULT_FROM_EMAIL='GeoRank <noreply@georank.local>',
+)
+class AnalysisEmailNotificationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='email_test_user',
+            email='email-test@example.com',
+            password='TestPass123!',
+        )
+
+        self.success_result = {
+            'visibility_score': 80,
+            'readability_score': 75,
+            'citability_score': 70,
+            'recommendations': [],
+            'sector_recommendations': [],
+        }
+
+    @patch(
+        'analysis.services.pipeline.analyze_with_gemini'
+    )
+    @patch(
+        'analysis.services.pipeline.fetch_page_content'
+    )
+    def test_completed_analysis_sends_email(
+        self,
+        mock_fetch,
+        mock_gemini,
+    ):
+        mock_fetch.return_value = {
+            'text': 'Test content',
+        }
+        mock_gemini.return_value = self.success_result
+
+        analysis = run_analysis(
+            'https://example.com',
+            user=self.user,
+        )
+
+        self.assertEqual(
+            analysis.status,
+            'completed',
+        )
+
+        self.assertEqual(
+            len(mail.outbox),
+            1,
+        )
+
+        email = mail.outbox[0]
+
+        self.assertEqual(
+            email.subject,
+            'Your GeoRank report is ready',
+        )
+
+        self.assertEqual(
+            email.to,
+            ['email-test@example.com'],
+        )
+
+        self.assertIn(
+            'https://example.com',
+            email.body,
+        )
+
+        report_path = reverse(
+            'analysis:result',
+            args=[analysis.pk],
+        )
+
+        self.assertIn(
+            f'http://testserver{report_path}',
+            email.body,
+        )
+
+    @patch(
+        'analysis.services.pipeline.fetch_page_content'
+    )
+    def test_failed_analysis_does_not_send_email(
+        self,
+        mock_fetch,
+    ):
+        mock_fetch.side_effect = Exception(
+            'Scraping failed'
+        )
+
+        analysis = run_analysis(
+            'https://example.com',
+            user=self.user,
+        )
+
+        self.assertEqual(
+            analysis.status,
+            'failed',
+        )
+
+        self.assertEqual(
+            len(mail.outbox),
+            0,
+        )
+
+    @patch(
+        'analysis.services.pipeline.analyze_with_gemini'
+    )
+    @patch(
+        'analysis.services.pipeline.fetch_page_content'
+    )
+    def test_competitor_analysis_does_not_send_email(
+        self,
+        mock_fetch,
+        mock_gemini,
+    ):
+        mock_fetch.return_value = {
+            'text': 'Competitor content',
+        }
+        mock_gemini.return_value = self.success_result
+
+        competitor = Competitor.objects.create(
+            user=self.user,
+            name='Competitor Test',
+            url='https://competitor.com',
+        )
+
+        analysis = run_analysis(
+            competitor.url,
+            user=self.user,
+            competitor=competitor,
+        )
+
+        self.assertEqual(
+            analysis.status,
+            'completed',
+        )
+
+        self.assertEqual(
+            len(mail.outbox),
+            0,
+        )
+
+    @patch(
+        'analysis.services.pipeline.send_analysis_ready_email'
+    )
+    @patch(
+        'analysis.services.pipeline.analyze_with_gemini'
+    )
+    @patch(
+        'analysis.services.pipeline.fetch_page_content'
+    )
+    def test_email_failure_does_not_fail_analysis(
+        self,
+        mock_fetch,
+        mock_gemini,
+        mock_send_email,
+    ):
+        mock_fetch.return_value = {
+            'text': 'Test content',
+        }
+        mock_gemini.return_value = self.success_result
+
+        mock_send_email.side_effect = Exception(
+            'SMTP unavailable'
+        )
+
+        analysis = run_analysis(
+            'https://example.com',
+            user=self.user,
+        )
+
+        self.assertEqual(
+            analysis.status,
+            'completed',
+        )
+
+        self.assertTrue(
+            hasattr(analysis, 'score')
+        )
+
+        mock_send_email.assert_called_once_with(
+            analysis
+        )
