@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+
 INPUT_CLASSES = (
     'w-full px-4 py-3 border border-gray-300 rounded-lg '
     'focus:ring-2 focus:ring-blue-500 focus:border-transparent '
@@ -12,15 +13,23 @@ INPUT_CLASSES = (
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={'class': INPUT_CLASSES, 'placeholder': 'you@example.com'}),
+        widget=forms.EmailInput(
+            attrs={
+                'class': INPUT_CLASSES,
+                'placeholder': 'you@example.com',
+            }
+        ),
     )
+
     industry_sector = forms.CharField(
         max_length=100,
         required=True,
-        widget=forms.TextInput(attrs={
-            'class': INPUT_CLASSES,
-            'placeholder': 'e.g. Insurance, Retail, Healthcare...',
-        }),
+        widget=forms.TextInput(
+            attrs={
+                'class': INPUT_CLASSES,
+                'placeholder': 'e.g. Insurance, Retail, Healthcare...',
+            }
+        ),
     )
 
     class Meta:
@@ -29,69 +38,97 @@ class RegisterForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields['username'].widget.attrs.update({
-            'class': INPUT_CLASSES, 'placeholder': 'username',
+            'class': INPUT_CLASSES,
+            'placeholder': 'username',
         })
+
         self.fields['password1'].widget.attrs.update({
-            'class': INPUT_CLASSES, 'placeholder': '••••••••',
+            'class': INPUT_CLASSES,
+            'placeholder': '••••••••',
         })
+
         self.fields['password2'].widget.attrs.update({
-            'class': INPUT_CLASSES, 'placeholder': '••••••••',
+            'class': INPUT_CLASSES,
+            'placeholder': '••••••••',
         })
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
+
         if commit:
             user.save()
-            # el signal post_save ya creó el UserProfile vacío en este punto
+
+            # The post_save signal has already created the UserProfile.
             user.profile.industry_sector = self.cleaned_data['industry_sector']
             user.profile.save()
+
         return user
 
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        widget=forms.TextInput(attrs={'class': INPUT_CLASSES, 'placeholder': 'username'}),
+        widget=forms.TextInput(
+            attrs={
+                'class': INPUT_CLASSES,
+                'placeholder': 'username',
+            }
+        ),
     )
+
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': INPUT_CLASSES, 'placeholder': '••••••••'}),
+        widget=forms.PasswordInput(
+            attrs={
+                'class': INPUT_CLASSES,
+                'placeholder': '••••••••',
+            }
+        ),
     )
 
 
 class ProfileUpdateForm(forms.Form):
     username = forms.CharField(
         max_length=150,
-        widget=forms.TextInput(attrs={
-            'class': INPUT_CLASSES,
-            'placeholder': 'username',
-        }),
+        widget=forms.TextInput(
+            attrs={
+                'class': INPUT_CLASSES,
+                'placeholder': 'username',
+            }
+        ),
     )
 
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={
-            'class': INPUT_CLASSES,
-            'placeholder': 'you@example.com',
-        }),
+        widget=forms.EmailInput(
+            attrs={
+                'class': INPUT_CLASSES,
+                'placeholder': 'you@example.com',
+            }
+        ),
     )
 
     company_name = forms.CharField(
         max_length=150,
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': INPUT_CLASSES,
-            'placeholder': 'Company name',
-        }),
+        widget=forms.TextInput(
+            attrs={
+                'class': INPUT_CLASSES,
+                'placeholder': 'Company name',
+            }
+        ),
     )
 
     industry_sector = forms.CharField(
         max_length=100,
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': INPUT_CLASSES,
-            'placeholder': 'Technology, Healthcare, Retail...',
-        }),
+        widget=forms.TextInput(
+            attrs={
+                'class': INPUT_CLASSES,
+                'placeholder': 'Technology, Healthcare, Retail...',
+            }
+        ),
     )
 
     def __init__(self, *args, user=None, **kwargs):
@@ -107,10 +144,20 @@ class ProfileUpdateForm(forms.Form):
     def clean_username(self):
         username = self.cleaned_data['username']
 
-        if User.objects.exclude(pk=self.user.pk).filter(username=username).exists():
-            raise forms.ValidationError('This username is already in use.')
+        if User.objects.exclude(pk=self.user.pk).filter(
+            username=username
+        ).exists():
+            raise forms.ValidationError(
+                'This username is already in use.'
+            )
 
         return username
+
+    def clean_company_name(self):
+        return self.cleaned_data['company_name'].strip()
+
+    def clean_industry_sector(self):
+        return self.cleaned_data['industry_sector'].strip()
 
     def save(self):
         user = self.user
@@ -120,6 +167,8 @@ class ProfileUpdateForm(forms.Form):
         user.email = self.cleaned_data['email']
         user.save()
 
+        # Editable profile information.
+        # IMPORTANT: company_name does NOT determine security membership.
         profile.company_name = self.cleaned_data['company_name']
         profile.industry_sector = self.cleaned_data['industry_sector']
         profile.save()

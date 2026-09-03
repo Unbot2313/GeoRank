@@ -1,11 +1,33 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CompetitorForm, URLAnalysisForm
 from .models import Analysis, Competitor
 from .services.pipeline import run_analysis
+
+
+def accessible_reports(user):
+    """
+    Return the reports that the authenticated user is allowed to access.
+
+    If the user belongs to a company, they can access reports created by
+    any member of that same company.
+
+    If the user has no company assigned, they can only access their own
+    reports. This prevents users with company=NULL from sharing access.
+    """
+    reports = Analysis.objects.filter(
+        competitor__isnull=True,
+    )
+
+    if user.profile.company_id:
+        return reports.filter(
+            user__profile__company_id=user.profile.company_id,
+        )
+
+    return reports.filter(user=user)
 
 
 @login_required
@@ -35,7 +57,10 @@ def submit_url(request):
 
         if form.is_valid():
             url = form.cleaned_data['url']
-            analysis = run_analysis(url, user=request.user)
+            analysis = run_analysis(
+                url,
+                user=request.user,
+            )
 
             return redirect(
                 'analysis:result',
@@ -57,10 +82,8 @@ def submit_url(request):
 @login_required
 def analysis_result(request, pk):
     analysis = get_object_or_404(
-        Analysis,
+        accessible_reports(request.user),
         pk=pk,
-        user=request.user,
-        competitor__isnull=True,
     )
 
     return render(
@@ -68,8 +91,12 @@ def analysis_result(request, pk):
         'analysis/result.html',
         {
             'analysis': analysis,
-            'general_recommendations': analysis.recommendations.exclude(category='sector'),
-            'sector_recommendations': analysis.recommendations.filter(category='sector'),
+            'general_recommendations': analysis.recommendations.exclude(
+                category='sector',
+            ),
+            'sector_recommendations': analysis.recommendations.filter(
+                category='sector',
+            ),
         },
     )
 
@@ -77,36 +104,41 @@ def analysis_result(request, pk):
 @login_required
 def analysis_history(request):
     analyses = (
-        request.user.analyses
-        .filter(competitor__isnull=True)
+        accessible_reports(request.user)
+        .select_related(
+            'user',
+            'user__profile',
+        )
         .order_by('-created_at')
     )
 
     return render(
         request,
         'analysis/history.html',
-        {'analyses': analyses},
+        {
+            'analyses': analyses,
+        },
     )
 
 
 @login_required
 def score_history(request, pk):
     selected_analysis = get_object_or_404(
-        Analysis,
+        accessible_reports(request.user),
         pk=pk,
-        user=request.user,
-        competitor__isnull=True,
     )
 
     analyses = (
-        Analysis.objects
+        accessible_reports(request.user)
         .filter(
-            user=request.user,
             url=selected_analysis.url,
             status='completed',
-            competitor__isnull=True,
         )
-        .select_related('score')
+        .select_related(
+            'score',
+            'user',
+            'user__profile',
+        )
         .order_by('-created_at')
     )
 
@@ -118,6 +150,7 @@ def score_history(request, pk):
             'analyses': analyses,
         },
     )
+
 
 @login_required
 def competitor_list(request):
@@ -134,7 +167,10 @@ def competitor_list(request):
 
             return redirect('analysis:competitors')
 
-        form = CompetitorForm(request.POST, user=request.user)
+        form = CompetitorForm(
+            request.POST,
+            user=request.user,
+        )
 
         if form.is_valid():
             try:
@@ -143,8 +179,13 @@ def competitor_list(request):
                     name=form.cleaned_data['name'],
                     url=form.cleaned_data['url'],
                 )
+
             except IntegrityError:
-                form.add_error('url', 'You already registered this competitor.')
+                form.add_error(
+                    'url',
+                    'You already registered this competitor.',
+                )
+
             else:
                 analysis = run_analysis(
                     competitor.url,
@@ -155,18 +196,27 @@ def competitor_list(request):
                 if analysis.status == 'failed':
                     messages.warning(
                         request,
-                        'Competitor registered, but we could not analyze its site yet.',
+                        'Competitor registered, but we could not '
+                        'analyze its site yet.',
                     )
                 else:
-                    messages.success(request, 'Competitor registered and analyzed.')
+                    messages.success(
+                        request,
+                        'Competitor registered and analyzed.',
+                    )
 
                 return redirect('analysis:competitors')
     else:
-        form = CompetitorForm(user=request.user)
+        form = CompetitorForm(
+            user=request.user,
+        )
 
     competitors = [
-        {'competitor': c, 'analysis': c.latest_analysis()}
-        for c in request.user.competitors.all()
+        {
+            'competitor': competitor,
+            'analysis': competitor.latest_analysis(),
+        }
+        for competitor in request.user.competitors.all()
     ]
 
     return render(
@@ -185,36 +235,61 @@ def competitor_list(request):
 @login_required
 def comparison(request, pk):
     analysis = get_object_or_404(
-        Analysis,
+        accessible_reports(request.user),
         pk=pk,
-        user=request.user,
-        competitor__isnull=True,
     )
 
-    rows = [{
-        'name': 'Your website',
-        'url': analysis.url,
-        'score': analysis.score.visibility_score if hasattr(analysis, 'score') else None,
-        'is_own': True,
-    }]
+    rows = [
+        {
+            'name': 'Your website',
+            'url': analysis.url,
+            'score': (
+                analysis.score.visibility_score
+                if hasattr(analysis, 'score')
+                else None
+            ),
+            'is_own': True,
+        }
+    ]
 
-    competitors = list(request.user.competitors.all())
+    # Use the competitors associated with the owner of the report.
+    # This also works when another member of the same company
+    # accesses the report.
+    competitors = list(
+        analysis.user.competitors.all()
+    )
 
     for competitor in competitors:
         latest = competitor.latest_analysis()
-        rows.append({
-            'name': str(competitor),
-            'url': competitor.url,
-            'score': latest.score.visibility_score if latest else None,
-            'is_own': False,
-        })
+
+        rows.append(
+            {
+                'name': str(competitor),
+                'url': competitor.url,
+                'score': (
+                    latest.score.visibility_score
+                    if latest
+                    else None
+                ),
+                'is_own': False,
+            }
+        )
 
     ranked = sorted(
-        [r for r in rows if r['score'] is not None],
-        key=lambda r: r['score'],
+        [
+            row
+            for row in rows
+            if row['score'] is not None
+        ],
+        key=lambda row: row['score'],
         reverse=True,
     )
-    unscored = [r for r in rows if r['score'] is None]
+
+    unscored = [
+        row
+        for row in rows
+        if row['score'] is None
+    ]
 
     return render(
         request,
