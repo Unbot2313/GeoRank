@@ -10,22 +10,45 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
+
+
+def env_bool(name, default):
+    return os.environ.get(name, str(default)).strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def env_list(name, default):
+    return [item.strip() for item in os.environ.get(name, default).split(',') if item.strip()]
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j&(1qqogydb1n1mb9suh+21=p5(%+^kykij*%+-vvb7e+@56+#'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured(
+            'DJANGO_SECRET_KEY must be set when DEBUG is off. '
+            'Generate one with: uv run python -c '
+            '"from django.core.management.utils import get_random_secret_key; '
+            'print(get_random_secret_key())"'
+        )
+    SECRET_KEY = 'django-insecure-development-only-key'
+
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost')
 
 
 # Application definition
@@ -130,9 +153,21 @@ SESSION_SAVE_EVERY_REQUEST = True  # cada request activo reinicia el contador de
 # ...y también al cerrar el navegador/pestaña
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# Email configuration for development.
-# Emails are printed in the terminal instead of being sent.
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'GeoRank <noreply@georank.local>'
+# Email configuration.
+# Defaults to the console backend, which prints emails in the terminal
+# instead of sending them. Set EMAIL_BACKEND to the SMTP backend to send.
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.console.EmailBackend',
+)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL',
+    'GeoRank <noreply@georank.local>',
+)
 
-SITE_URL = 'http://127.0.0.1:8000'
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')

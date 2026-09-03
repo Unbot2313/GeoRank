@@ -92,12 +92,22 @@ uv sync
 
 **3. Set up environment variables**
 
-Get a free API key from [Google AI Studio](https://aistudio.google.com/apikey), then:
-
 ```bash
 cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
 ```
+
+Then open `.env` and fill in:
+
+- `DJANGO_SECRET_KEY` — generate one with:
+
+  ```bash
+  uv run python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+  ```
+
+- `GEMINI_API_KEY` — free key from [Google AI Studio](https://aistudio.google.com/apikey)
+
+The remaining variables have working defaults for local development. `.env` is
+git-ignored and must never be committed.
 
 **4. Apply migrations and create a superuser**
 
