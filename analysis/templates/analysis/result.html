@@ -97,6 +97,11 @@
     <div class="flex flex-wrap gap-4">
 
     {% if analysis.status == 'completed' %}
+    <a href="{% url 'analysis:export_pdf' analysis.pk %}"
+       class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+        Download PDF
+    </a>
+
     <a href="{% url 'analysis:score_history' analysis.pk %}"
        class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
         View score history

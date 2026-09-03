@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from accounts.models import Company
-from analysis.models import Analysis, Competitor
+from analysis.models import Analysis, Competitor, Recommendation, Score
 
 from unittest.mock import patch
 
@@ -314,4 +314,167 @@ class AnalysisEmailNotificationTests(TestCase):
 
         mock_send_email.assert_called_once_with(
             analysis
+        )
+
+class PdfExportTests(TestCase):
+    def setUp(self):
+        self.company_a = Company.objects.create(
+            name='PDF Company A',
+        )
+
+        self.company_b = Company.objects.create(
+            name='PDF Company B',
+        )
+
+        self.user_a1 = User.objects.create_user(
+            username='pdf_user_a1',
+            email='pdf-a1@example.com',
+            password='TestPass123!',
+        )
+
+        self.user_a2 = User.objects.create_user(
+            username='pdf_user_a2',
+            email='pdf-a2@example.com',
+            password='TestPass123!',
+        )
+
+        self.user_b1 = User.objects.create_user(
+            username='pdf_user_b1',
+            email='pdf-b1@example.com',
+            password='TestPass123!',
+        )
+
+        self.user_a1.profile.company = self.company_a
+        self.user_a1.profile.save()
+
+        self.user_a2.profile.company = self.company_a
+        self.user_a2.profile.save()
+
+        self.user_b1.profile.company = self.company_b
+        self.user_b1.profile.save()
+
+        self.analysis = Analysis.objects.create(
+            user=self.user_a1,
+            url='https://example.com',
+            status='completed',
+            industry_sector='Technology',
+        )
+
+        Score.objects.create(
+            analysis=self.analysis,
+            visibility_score=85,
+            readability_score=78,
+            citability_score=82,
+        )
+
+        Recommendation.objects.create(
+            analysis=self.analysis,
+            priority=1,
+            category='content',
+            description='Improve the clarity of important website content.',
+        )
+
+        Recommendation.objects.create(
+            analysis=self.analysis,
+            priority=2,
+            category='sector',
+            description='Add more industry-specific terminology.',
+        )
+
+    def test_authorized_user_can_download_pdf(self):
+        self.client.login(
+            username='pdf_user_a1',
+            password='TestPass123!',
+        )
+
+        response = self.client.get(
+            reverse(
+                'analysis:export_pdf',
+                args=[self.analysis.pk],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertEqual(
+            response['Content-Type'],
+            'application/pdf',
+        )
+
+        self.assertEqual(
+            response['Content-Disposition'],
+            f'attachment; filename="georank-report-{self.analysis.pk}.pdf"',
+        )
+
+        self.assertTrue(
+            response.content.startswith(b'%PDF'),
+        )
+
+    def test_same_company_member_can_download_pdf(self):
+        self.client.login(
+            username='pdf_user_a2',
+            password='TestPass123!',
+        )
+
+        response = self.client.get(
+            reverse(
+                'analysis:export_pdf',
+                args=[self.analysis.pk],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertEqual(
+            response['Content-Type'],
+            'application/pdf',
+        )
+
+    def test_other_company_cannot_download_pdf(self):
+        self.client.login(
+            username='pdf_user_b1',
+            password='TestPass123!',
+        )
+
+        response = self.client.get(
+            reverse(
+                'analysis:export_pdf',
+                args=[self.analysis.pk],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+        )
+
+    def test_failed_analysis_cannot_be_exported(self):
+        failed_analysis = Analysis.objects.create(
+            user=self.user_a1,
+            url='https://failed-example.com',
+            status='failed',
+            error_message='Test failure',
+        )
+
+        self.client.login(
+            username='pdf_user_a1',
+            password='TestPass123!',
+        )
+
+        response = self.client.get(
+            reverse(
+                'analysis:export_pdf',
+                args=[failed_analysis.pk],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
         )
