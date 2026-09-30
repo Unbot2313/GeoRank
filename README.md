@@ -135,6 +135,17 @@ uv sync                # install from the lockfile
 Never call `pip` or `python` directly — always go through `uv`. The `uv.lock` file is
 committed so every member gets identical versions.
 
+`requirements.txt` is generated from the lockfile and kept in the repository for
+tooling that expects it. Do not edit it by hand — regenerate it after changing
+dependencies:
+
+```bash
+uv export --no-hashes --no-dev --no-emit-project --format requirements-txt -o requirements.txt
+```
+
+If you prefer plain pip, `pip install -r requirements.txt` installs the same
+pinned versions.
+
 ## Project Structure
 
 ```
@@ -157,6 +168,7 @@ GeoRank/
 │       └── analysis/     # HTML templates (Tailwind)
 ├── .env.example          # Environment variables template
 ├── manage.py
+├── requirements.txt      # Pinned deps, generated from uv.lock
 ├── pyproject.toml        # Dependencies
 └── uv.lock               # Pinned versions
 ```
