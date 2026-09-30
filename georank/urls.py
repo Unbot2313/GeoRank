@@ -30,4 +30,5 @@ urlpatterns = [
     path('', home_redirect),
     path('', include('accounts.urls')),
     path('', include('analysis.urls')),
+    path('', include('reports.urls')),
 ]
