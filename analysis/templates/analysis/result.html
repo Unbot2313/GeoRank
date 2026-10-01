@@ -38,7 +38,7 @@
         <div class="space-y-3">
             {% for rec in general_recommendations %}
             <div class="flex items-start gap-4 p-4 bg-line/30 rounded-xl">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold flex-shrink-0
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-on-brand text-sm font-bold flex-shrink-0
                     {% if rec.priority == 1 %}bg-danger{% elif rec.priority == 2 %}bg-warning{% else %}bg-fg-muted{% endif %}">
                     {{ rec.priority }}
                 </span>
@@ -60,7 +60,7 @@
         <div class="space-y-3">
             {% for rec in sector_recommendations %}
             <div class="flex items-start gap-4 p-4 bg-brand-light rounded-xl">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold flex-shrink-0
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-on-brand text-sm font-bold flex-shrink-0
                     {% if rec.priority == 1 %}bg-danger{% elif rec.priority == 2 %}bg-warning{% else %}bg-fg-muted{% endif %}">
                     {{ rec.priority }}
                 </span>
@@ -98,7 +98,7 @@
 
     {% if analysis.status == 'completed' %}
     <a href="{% url 'reports:export_pdf' analysis.pk %}"
-       class="inline-flex items-center bg-brand text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-hover transition">
+       class="inline-flex items-center bg-brand text-on-brand px-4 py-2 rounded-lg font-medium hover:bg-brand-hover transition">
         Download PDF
     </a>
 

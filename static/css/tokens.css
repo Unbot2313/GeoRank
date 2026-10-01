@@ -3,57 +3,64 @@
        BRAND COLORS
        ========================= */
 
-    --color-primary: #0E1A19;         /* Dark Green — pares con texto blanco en los botones existentes */
-    --color-primary-hover: #070F0F;   /* Very Dark Green — hover más oscuro */
-    --color-primary-light: #97DDBC;   /* Mint Green — fondos suaves de badges, va con texto oscuro */
+    --color-primary: #3DDC91;         /* Green — botones principales y links */
+    --color-primary-hover: #97DDBC;   /* Mint Green — hover más claro */
+    --color-primary-light: rgba(61, 220, 145, 0.12);  /* Green al 12% — fondos resaltados y badges */
+    --color-on-primary: #070F0F;      /* Very Dark Green — texto sobre el verde (blanco sobre verde no pasa contraste) */
 
     /* =========================
        SCORE COLORS
        ========================= */
 
     --color-visibility: #3DDC91;      /* Green — métrica protagonista */
-    --color-readability: #0E1A19;     /* Dark Green */
-    --color-citability: #070F0F;      /* Very Dark Green */
+    --color-readability: #97DDBC;     /* Mint Green */
+    --color-citability: #D0D3D3;      /* Light Gray */
 
     /* =========================
        SEMANTIC COLORS
        ========================= */
 
-    --color-success: #0E1A19;
-    --color-success-bg: #97DDBC;
+    --color-success: #3DDC91;
+    --color-success-bg: rgba(61, 220, 145, 0.12);
 
-    --color-warning: #0E1A19;
-    --color-warning-bg: #D0D3D3;
+    --color-warning: #D0D3D3;
+    --color-warning-bg: rgba(208, 211, 211, 0.08);
 
-    --color-danger: #070F0F;
-    --color-danger-bg: #D0D3D3;
+    --color-danger: #FF8A8A;          /* Soft Red — color funcional solo para errores */
+    --color-danger-bg: rgba(255, 138, 138, 0.10);
 
-    --color-info: #0E1A19;
-    --color-info-bg: #D0D3D3;
+    --color-info: #D0D3D3;
+    --color-info-bg: rgba(208, 211, 211, 0.08);
 
     /* Bordes semánticos */
-    --color-success-border: #3DDC91;
-    --color-warning-border: #97DDBC;
-    --color-danger-border: #0E1A19;
+    --color-success-border: rgba(61, 220, 145, 0.35);
+    --color-warning-border: rgba(208, 211, 211, 0.25);
+    --color-danger-border: rgba(255, 138, 138, 0.35);
 
     /* Fondos suaves de las tarjetas de score */
-    --color-visibility-bg: #97DDBC;
-    --color-readability-bg: #D0D3D3;
-    --color-citability-bg: #FFFFFF;
+    --color-visibility-bg: rgba(61, 220, 145, 0.12);
+    --color-readability-bg: rgba(151, 221, 188, 0.10);
+    --color-citability-bg: rgba(208, 211, 211, 0.08);
 
     /* =========================
        NEUTRAL COLORS
        ========================= */
 
-    --color-background: #0E1A19;      /* Dark Green — lienzo de la página, detrás de las tarjetas blancas */
-    --color-surface: #FFFFFF;         /* Las tarjetas se quedan blancas: contraste limpio sobre el fondo oscuro */
+    --color-background: #070F0F;      /* Very Dark Green — lienzo de la página */
+    --color-nav-background: #070F0F;  /* Very Dark Green — topbar, separado por un borde */
+    --color-surface: #0E1A19;         /* Dark Green — tarjetas, un tono más claro que el fondo */
+    --color-input-background: #070F0F; /* Very Dark Green — campos hundidos dentro de las tarjetas */
 
-    --color-text-primary: #000000;
-    --color-text-secondary: #0E1A19;
-    --color-text-muted: rgba(0, 0, 0, 0.55);  /* para texto DENTRO de tarjetas blancas */
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: #D0D3D3;
+    --color-text-muted: rgba(208, 211, 211, 0.65);
 
-    --color-border: #D0D3D3;
-    --color-border-hover: #97DDBC;
+    --color-border: rgba(208, 211, 211, 0.14);
+    --color-border-hover: rgba(151, 221, 188, 0.5);
+
+    /* Capas translúcidas para hover y elementos activos sobre fondos oscuros */
+    --color-overlay: rgba(208, 211, 211, 0.06);
+    --color-overlay-strong: rgba(208, 211, 211, 0.10);
 
     /* =========================
        TYPOGRAPHY
