@@ -5,14 +5,14 @@
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="text-center mb-8">
-        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-3">Analyze your website</h1>
-        <p class="text-base sm:text-lg text-white/70">
+        <h1 class="text-3xl sm:text-4xl font-bold text-fg mb-3">Analyze your website</h1>
+        <p class="text-base sm:text-lg text-fg-secondary">
             Get an AI visibility score and actionable recommendations to be cited by ChatGPT, Perplexity, and Gemini.
         </p>
     </div>
 
     {% if profile.plan_type == 'free' %}
-    <p class="text-center text-sm text-white/60 mb-4">
+    <p class="text-center text-sm text-fg-muted mb-4">
         Free Plan &middot; {{ profile.remaining_today }} of {{ profile.FREE_DAILY_LIMIT }} analyses available today
         &middot; <a href="{% url 'accounts:profile' %}" class="text-brand hover:underline">view profile</a>
     </p>
@@ -35,7 +35,7 @@
             </div>
             <button type="submit"
                 {% if profile.plan_type == 'free' and not profile.can_run_analysis %}disabled{% endif %}
-                class="w-full bg-brand text-white py-3.5 rounded-xl font-semibold hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100">
+                class="w-full bg-brand text-on-brand py-3.5 rounded-xl font-semibold hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100">
                 Analyze
             </button>
         </form>

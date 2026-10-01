@@ -16,7 +16,7 @@
             <div class="flex items-center gap-4 p-4 rounded-xl
                 {% if row.is_own %}bg-brand-light border border-line-hover{% else %}bg-line/30{% endif %}">
                 <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold flex-shrink-0
-                    {% if row.is_own %}bg-brand text-white{% else %}bg-line text-fg-secondary{% endif %}">
+                    {% if row.is_own %}bg-brand text-on-brand{% else %}bg-line text-fg-secondary{% endif %}">
                     {{ forloop.counter }}
                 </span>
                 <div class="min-w-0 flex-1">
