@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="static/brand/georank-logo-dark.svg">
+  <img src="static/brand/georank-logo-light.svg" alt="GeoRank" height="56">
+</picture>
+
 # GeoRank
 
 A web platform that tells small businesses why AI assistants don't recommend them — and what to fix.

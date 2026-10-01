@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoRank - {% block title %}{% endblock %}</title>
+    <link rel="icon" href="{% static 'brand/georank-favicon.ico' %}" sizes="any">
+    <link rel="icon" href="{% static 'brand/georank-favicon.svg' %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static 'brand/png/georank-icon-192.png' %}">
     <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -49,7 +52,9 @@
 <body class="bg-page min-h-screen">
     <nav class="bg-surface shadow-sm border-b border-line">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-y-2 gap-x-3">
-            <a href="{% url 'analysis:submit' %}" class="text-xl sm:text-2xl font-bold text-visibility tracking-tight shrink-0">GeoRank</a>
+            <a href="{% url 'analysis:submit' %}" class="shrink-0">
+                <img src="{% static 'brand/georank-logo-light.svg' %}" alt="GeoRank" class="h-8 sm:h-9 w-auto">
+            </a>
             <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
                 <span class="text-fg-muted hidden md:inline">AI Visibility Analysis</span>
                 {% if user.is_authenticated %}
