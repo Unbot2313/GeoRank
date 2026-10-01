@@ -2,21 +2,6 @@
 
 {% block title %}Analyze URL{% endblock %}
 
-{% block extra_head %}
-<style>
-    .progress-indeterminate {
-        animation: progress-slide 1.4s ease-in-out infinite;
-    }
-    @keyframes progress-slide {
-        0%   { transform: translateX(-100%); }
-        100% { transform: translateX(250%); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .progress-indeterminate, .animate-spin { animation-duration: 4s; }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="text-center mb-8">
@@ -39,7 +24,7 @@
             You've already used your free analysis for today. Come back tomorrow or upgrade to Pro for unlimited analyses.
         </div>
         {% endif %}
-        <form method="post" class="space-y-4" id="analyze-form">
+        <form method="post" class="space-y-4" data-analysis-form>
             {% csrf_token %}
             <div>
                 <label for="id_url" class="block text-sm font-medium text-fg-secondary mb-2">Website URL</label>
@@ -48,72 +33,13 @@
                 <p class="mt-2 text-sm text-danger">{{ form.url.errors.0 }}</p>
                 {% endif %}
             </div>
-            <button type="submit" id="analyze-button"
+            <button type="submit" data-loading-button
                 {% if profile.plan_type == 'free' and not profile.can_run_analysis %}disabled{% endif %}
                 class="w-full inline-flex items-center justify-center gap-2 bg-brand text-on-brand py-3.5 rounded-xl font-semibold hover:bg-brand-hover active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100">
-                <svg id="analyze-spinner" aria-hidden="true" class="hidden w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity="0.25"/>
-                    <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-                <span id="analyze-label">Analyze</span>
+                {% include "analysis/partials/loading_button_content.html" with label="Analyze" %}
             </button>
+            {% include "analysis/partials/analysis_progress.html" %}
         </form>
-
-        {# Shown while the server scrapes the site and asks the AI. The request is synchronous, so steps advance on a timer. #}
-        <div id="analyze-progress" class="hidden mt-6" role="status" aria-live="polite">
-            <div class="h-1.5 w-full rounded-full bg-overlay-strong overflow-hidden">
-                <div class="progress-indeterminate h-full w-2/5 rounded-full bg-brand"></div>
-            </div>
-            <p id="analyze-step" class="mt-3 text-sm font-medium text-fg">Fetching your website…</p>
-            <p class="mt-1 text-xs text-fg-muted">This can take up to a minute. Please keep this page open.</p>
-        </div>
     </div>
 </div>
-
-<script>
-    (() => {
-        const form = document.getElementById('analyze-form');
-        const button = document.getElementById('analyze-button');
-        const input = form.querySelector('input[name="url"]');
-        const spinner = document.getElementById('analyze-spinner');
-        const label = document.getElementById('analyze-label');
-        const progress = document.getElementById('analyze-progress');
-        const step = document.getElementById('analyze-step');
-        const disabledByPlan = button.disabled;
-
-        // Seconds after submit at which each message appears.
-        const steps = [
-            [0, 'Fetching your website…'],
-            [4, 'Reading your content…'],
-            [8, 'Asking the AI how it sees your site…'],
-            [18, 'Calculating your scores and recommendations…'],
-            [35, 'Almost done…'],
-        ];
-        let timers = [];
-
-        function setLoading(loading) {
-            button.disabled = loading || disabledByPlan;
-            // While loading the button stays at full color with a wait cursor, not the faded "not allowed" look.
-            button.classList.toggle('disabled:opacity-50', !loading);
-            button.classList.toggle('disabled:cursor-not-allowed', !loading);
-            button.classList.toggle('cursor-wait', loading);
-            input.readOnly = loading;
-            form.setAttribute('aria-busy', loading);
-            spinner.classList.toggle('hidden', !loading);
-            progress.classList.toggle('hidden', !loading);
-            label.textContent = loading ? 'Analyzing…' : 'Analyze';
-            timers.forEach(clearTimeout);
-            timers = loading
-                ? steps.map(([sec, text]) => setTimeout(() => { step.textContent = text; }, sec * 1000))
-                : [];
-        }
-
-        form.addEventListener('submit', () => setLoading(true));
-
-        // Coming back with the browser's Back button restores the page from cache: reset it.
-        window.addEventListener('pageshow', (e) => {
-            if (e.persisted) setLoading(false);
-        });
-    })();
-</script>
 {% endblock %}
