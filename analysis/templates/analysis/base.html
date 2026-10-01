@@ -79,11 +79,20 @@
         .menu-header {
             background-color: var(--color-overlay);
         }
+        .progress-indeterminate {
+            animation: progress-slide 1.4s ease-in-out infinite;
+        }
+        @keyframes progress-slide {
+            0%   { transform: translateX(-100%); }
+            100% { transform: translateX(250%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .progress-indeterminate, .animate-spin { animation-duration: 4s; }
+        }
         details[open] .menu-chevron {
             transform: rotate(180deg);
         }
     </style>
-    {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-page min-h-screen flex flex-col">
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-visibility focus:text-nav focus:font-semibold focus:px-4 focus:py-2 focus:rounded-lg">
@@ -190,6 +199,7 @@
         </div>
     </footer>
 
+    <script src="{% static 'js/analysis-loading.js' %}"></script>
     <script>
         // Close the account menu when clicking outside it or pressing Escape.
         document.addEventListener('click', (e) => {
