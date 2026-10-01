@@ -29,8 +29,12 @@ def send_analysis_ready_email(analysis):
     )
 
     send_mail(
-        subject=subject,
-        message=message,
+        subject='Your GeoRank report is ready',
+        message=(
+            f'Hello {analysis.user.username},\n\n'
+            f'Your GeoRank analysis for {analysis.url} is ready.\n\n'
+            f'View your report:\n{report_url}\n\nGeoRank'
+        ),
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[analysis.user.email],
         fail_silently=False,

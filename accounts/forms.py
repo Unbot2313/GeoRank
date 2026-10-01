@@ -2,12 +2,63 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+import logging
+
+from django.conf import settings
+from django.contrib.auth.forms import PasswordResetForm
+from django.urls import reverse
+
+from notifications.services.n8n import N8nNotificationError, trigger_workflow
+
+
 
 INPUT_CLASSES = (
     'w-full px-4 py-3 border border-gray-300 rounded-lg '
     'focus:ring-2 focus:ring-blue-500 focus:border-transparent '
     'outline-none transition'
 )
+
+logger = logging.getLogger(__name__)
+
+
+class N8nPasswordResetForm(PasswordResetForm):
+    def send_mail(
+        self,
+        subject_template_name,
+        email_template_name,
+        context,
+        from_email,
+        to_email,
+        html_email_template_name=None,
+    ):
+        # Sin URL de n8n: respaldo con el correo de Django (consola en desarrollo)
+        if not settings.N8N_WEBHOOK_URL:
+            return super().send_mail(
+                subject_template_name,
+                email_template_name,
+                context,
+                from_email,
+                to_email,
+                html_email_template_name,
+            )
+
+        reset_path = reverse(
+            'accounts:password_reset_confirm',
+            kwargs={'uidb64': context['uid'], 'token': context['token']},
+        )
+        reset_url = f"{context['protocol']}://{context['domain']}{reset_path}"
+
+        try:
+            trigger_workflow('password.reset', {
+                'to': to_email,
+                'username': context['user'].get_username(),
+                'reset_url': reset_url,
+                'expires_hours': settings.PASSWORD_RESET_TIMEOUT // 3600,
+            })
+        except N8nNotificationError:
+            # No propagamos el error: la respuesta debe ser igual exista o no el correo.
+            logger.exception('Could not send password reset email via n8n.')
+
 
 
 class RegisterForm(UserCreationForm):

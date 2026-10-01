@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'analysis',
     'accounts',
     'reports',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -172,3 +173,7 @@ DEFAULT_FROM_EMAIL = os.environ.get(
 )
 
 SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+# n8n notifications
+N8N_WEBHOOK_URL = os.environ.get('N8N_WEBHOOK_URL', '')
+N8N_WEBHOOK_SECRET = os.environ.get('N8N_WEBHOOK_SECRET', '')
+N8N_TIMEOUT = int(os.environ.get('N8N_TIMEOUT', '5'))
