@@ -3,47 +3,57 @@
        BRAND COLORS
        ========================= */
 
-    --color-primary: #2563EB;
-    --color-primary-hover: #1D4ED8;
-    --color-primary-light: #DBEAFE;
+    --color-primary: #0E1A19;         /* Dark Green — pares con texto blanco en los botones existentes */
+    --color-primary-hover: #070F0F;   /* Very Dark Green — hover más oscuro */
+    --color-primary-light: #97DDBC;   /* Mint Green — fondos suaves de badges, va con texto oscuro */
 
     /* =========================
        SCORE COLORS
        ========================= */
 
-    --color-visibility: #2563EB;
-    --color-readability: #16A34A;
-    --color-citability: #9333EA;
+    --color-visibility: #3DDC91;      /* Green — métrica protagonista */
+    --color-readability: #0E1A19;     /* Dark Green */
+    --color-citability: #070F0F;      /* Very Dark Green */
 
     /* =========================
        SEMANTIC COLORS
        ========================= */
 
-    --color-success: #15803D;
-    --color-success-bg: #DCFCE7;
+    --color-success: #0E1A19;
+    --color-success-bg: #97DDBC;
 
-    --color-warning: #A16207;
-    --color-warning-bg: #FEF3C7;
+    --color-warning: #0E1A19;
+    --color-warning-bg: #D0D3D3;
 
-    --color-danger: #B91C1C;
-    --color-danger-bg: #FEE2E2;
+    --color-danger: #070F0F;
+    --color-danger-bg: #D0D3D3;
 
-    --color-info: #1D4ED8;
-    --color-info-bg: #DBEAFE;
+    --color-info: #0E1A19;
+    --color-info-bg: #D0D3D3;
+
+    /* Bordes semánticos */
+    --color-success-border: #3DDC91;
+    --color-warning-border: #97DDBC;
+    --color-danger-border: #0E1A19;
+
+    /* Fondos suaves de las tarjetas de score */
+    --color-visibility-bg: #97DDBC;
+    --color-readability-bg: #D0D3D3;
+    --color-citability-bg: #FFFFFF;
 
     /* =========================
        NEUTRAL COLORS
        ========================= */
 
-    --color-background: #F9FAFB;
-    --color-surface: #FFFFFF;
+    --color-background: #0E1A19;      /* Dark Green — lienzo de la página, detrás de las tarjetas blancas */
+    --color-surface: #FFFFFF;         /* Las tarjetas se quedan blancas: contraste limpio sobre el fondo oscuro */
 
-    --color-text-primary: #111827;
-    --color-text-secondary: #4B5563;
-    --color-text-muted: #6B7280;
+    --color-text-primary: #000000;
+    --color-text-secondary: #0E1A19;
+    --color-text-muted: rgba(0, 0, 0, 0.55);  /* para texto DENTRO de tarjetas blancas */
 
-    --color-border: #E5E7EB;
-    --color-border-hover: #BFDBFE;
+    --color-border: #D0D3D3;
+    --color-border-hover: #97DDBC;
 
     /* =========================
        TYPOGRAPHY

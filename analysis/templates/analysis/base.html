@@ -5,7 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoRank - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind lee los colores desde tokens.css: para cambiar el diseño, edita solo ese archivo.
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        page: 'var(--color-background)',
+                        surface: 'var(--color-surface)',
+                        line: { DEFAULT: 'var(--color-border)', hover: 'var(--color-border-hover)' },
+                        fg: {
+                            DEFAULT: 'var(--color-text-primary)',
+                            secondary: 'var(--color-text-secondary)',
+                            muted: 'var(--color-text-muted)',
+                        },
+                        brand: {
+                            DEFAULT: 'var(--color-primary)',
+                            hover: 'var(--color-primary-hover)',
+                            light: 'var(--color-primary-light)',
+                        },
+                        success: { DEFAULT: 'var(--color-success)', bg: 'var(--color-success-bg)', border: 'var(--color-success-border)' },
+                        warning: { DEFAULT: 'var(--color-warning)', bg: 'var(--color-warning-bg)', border: 'var(--color-warning-border)' },
+                        danger:  { DEFAULT: 'var(--color-danger)',  bg: 'var(--color-danger-bg)',  border: 'var(--color-danger-border)' },
+                        info:    { DEFAULT: 'var(--color-info)',    bg: 'var(--color-info-bg)' },
+                        visibility:  { DEFAULT: 'var(--color-visibility)',  bg: 'var(--color-visibility-bg)' },
+                        readability: { DEFAULT: 'var(--color-readability)', bg: 'var(--color-readability-bg)' },
+                        citability:  { DEFAULT: 'var(--color-citability)',  bg: 'var(--color-citability-bg)' },
+                    },
+                },
+            },
+        };
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -13,35 +45,34 @@
             font-family: 'Inter', sans-serif;
         }
     </style>
-    <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white shadow-sm border-b border-gray-100">
+<body class="bg-page min-h-screen">
+    <nav class="bg-surface shadow-sm border-b border-line">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-y-2 gap-x-3">
-            <a href="{% url 'analysis:submit' %}" class="text-xl sm:text-2xl font-bold text-blue-600 tracking-tight shrink-0">GeoRank</a>
+            <a href="{% url 'analysis:submit' %}" class="text-xl sm:text-2xl font-bold text-visibility tracking-tight shrink-0">GeoRank</a>
             <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
-                <span class="text-gray-400 hidden md:inline">AI Visibility Analysis</span>
+                <span class="text-fg-muted hidden md:inline">AI Visibility Analysis</span>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'analysis:history' %}" class="font-medium text-gray-500 hover:text-gray-700 transition">
+                    <a href="{% url 'analysis:history' %}" class="font-medium text-fg-muted hover:text-fg-secondary transition">
                         History
                     </a>
-                    <a href="{% url 'analysis:competitors' %}" class="font-medium text-gray-500 hover:text-gray-700 transition">
+                    <a href="{% url 'analysis:competitors' %}" class="font-medium text-fg-muted hover:text-fg-secondary transition">
                         Competitors
                     </a>
-                    <a href="{% url 'accounts:profile' %}" class="font-medium text-gray-500 hover:text-gray-700 transition truncate max-w-[8rem] sm:max-w-none">
+                    <a href="{% url 'accounts:profile' %}" class="font-medium text-fg-muted hover:text-fg-secondary transition truncate max-w-[8rem] sm:max-w-none">
                         {{ user.username }}
                     </a>
                     <form method="post" action="{% url 'accounts:logout' %}">
                         {% csrf_token %}
-                        <button type="submit" class="font-medium text-gray-500 hover:text-gray-700 transition">
+                        <button type="submit" class="font-medium text-fg-muted hover:text-fg-secondary transition">
                             Log out
                         </button>
                     </form>
                 {% else %}
-                    <a href="{% url 'accounts:login' %}" class="font-medium text-gray-500 hover:text-gray-700 transition">
+                    <a href="{% url 'accounts:login' %}" class="font-medium text-fg-muted hover:text-fg-secondary transition">
                         Log in
                     </a>
-                    <a href="{% url 'accounts:register' %}" class="font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition">
+                    <a href="{% url 'accounts:register' %}" class="font-medium text-white bg-brand hover:bg-brand-hover px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition">
                         Sign up
                     </a>
                 {% endif %}
@@ -51,7 +82,7 @@
     {% if messages %}
     <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
         {% for message in messages %}
-        <div class="bg-green-50 text-green-700 text-sm rounded-lg px-4 py-3 mb-2 border border-green-100">
+        <div class="bg-success-bg text-success text-sm rounded-lg px-4 py-3 mb-2 border border-success-border">
             {{ message }}
         </div>
         {% endfor %}
@@ -60,7 +91,7 @@
     <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {% block content %}{% endblock %}
     </main>
-    <footer class="text-center text-sm text-gray-400 py-6">
+    <footer class="text-center text-sm text-white/50 py-6">
         Built for Generative Engine Optimization
     </footer>
 </body>

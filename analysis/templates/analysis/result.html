@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <p class="text-sm text-gray-500 mb-1">Analyzing</p>
-        <h1 class="text-2xl font-bold text-gray-900 break-all">{{ analysis.url }}</h1>
+    <div class="bg-surface rounded-2xl shadow-sm border border-line p-6">
+        <p class="text-sm text-fg-muted mb-1">Analyzing</p>
+        <h1 class="text-2xl font-bold text-fg break-all">{{ analysis.url }}</h1>
         {% if analysis.industry_sector %}
-        <span class="inline-block mt-3 text-xs font-semibold uppercase tracking-wide text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+        <span class="inline-block mt-3 text-xs font-semibold uppercase tracking-wide text-brand bg-brand-light px-3 py-1 rounded-full">
             {{ analysis.industry_sector }}
         </span>
         {% endif %}
@@ -16,55 +16,55 @@
 
     {% if analysis.status == 'completed' %}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
-            <p class="text-sm text-gray-500 mb-2">Visibility Score</p>
-            <p class="text-5xl font-bold text-blue-600">{{ analysis.score.visibility_score }}</p>
-            <p class="text-xs text-gray-400 mt-2">out of 100</p>
+        <div class="bg-surface rounded-2xl shadow-sm border border-line p-6 text-center">
+            <p class="text-sm text-fg-muted mb-2">Visibility Score</p>
+            <p class="text-5xl font-bold text-visibility">{{ analysis.score.visibility_score }}</p>
+            <p class="text-xs text-fg-muted mt-2">out of 100</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
-            <p class="text-sm text-gray-500 mb-2">Readability</p>
-            <p class="text-5xl font-bold text-green-600">{{ analysis.score.readability_score }}</p>
-            <p class="text-xs text-gray-400 mt-2">out of 100</p>
+        <div class="bg-surface rounded-2xl shadow-sm border border-line p-6 text-center">
+            <p class="text-sm text-fg-muted mb-2">Readability</p>
+            <p class="text-5xl font-bold text-readability">{{ analysis.score.readability_score }}</p>
+            <p class="text-xs text-fg-muted mt-2">out of 100</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
-            <p class="text-sm text-gray-500 mb-2">Citability</p>
-            <p class="text-5xl font-bold text-purple-600">{{ analysis.score.citability_score }}</p>
-            <p class="text-xs text-gray-400 mt-2">out of 100</p>
+        <div class="bg-surface rounded-2xl shadow-sm border border-line p-6 text-center">
+            <p class="text-sm text-fg-muted mb-2">Citability</p>
+            <p class="text-5xl font-bold text-citability">{{ analysis.score.citability_score }}</p>
+            <p class="text-xs text-fg-muted mt-2">out of 100</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Recommendations</h2>
+    <div class="bg-surface rounded-2xl shadow-sm border border-line p-6">
+        <h2 class="text-xl font-bold text-fg mb-4">Recommendations</h2>
         <div class="space-y-3">
             {% for rec in general_recommendations %}
-            <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+            <div class="flex items-start gap-4 p-4 bg-line/30 rounded-xl">
                 <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold flex-shrink-0
-                    {% if rec.priority == 1 %}bg-red-500{% elif rec.priority == 2 %}bg-yellow-500{% else %}bg-gray-400{% endif %}">
+                    {% if rec.priority == 1 %}bg-danger{% elif rec.priority == 2 %}bg-warning{% else %}bg-fg-muted{% endif %}">
                     {{ rec.priority }}
                 </span>
                 <div>
-                    <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">{{ rec.category }}</span>
-                    <p class="text-gray-800 mt-1">{{ rec.description }}</p>
+                    <span class="text-xs font-semibold uppercase tracking-wide text-fg-muted">{{ rec.category }}</span>
+                    <p class="text-fg mt-1">{{ rec.description }}</p>
                 </div>
             </div>
             {% empty %}
-            <p class="text-gray-500 text-center py-4">No recommendations generated.</p>
+            <p class="text-fg-muted text-center py-4">No recommendations generated.</p>
             {% endfor %}
         </div>
     </div>
 
     {% if sector_recommendations %}
-    <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-6">
-        <h2 class="text-xl font-bold text-gray-900 mb-1">Recommendations for your industry</h2>
-        <p class="text-sm text-gray-500 mb-4">Specialized for {{ analysis.industry_sector }}</p>
+    <div class="bg-surface rounded-2xl shadow-sm border border-line-hover p-6">
+        <h2 class="text-xl font-bold text-fg mb-1">Recommendations for your industry</h2>
+        <p class="text-sm text-fg-muted mb-4">Specialized for {{ analysis.industry_sector }}</p>
         <div class="space-y-3">
             {% for rec in sector_recommendations %}
-            <div class="flex items-start gap-4 p-4 bg-blue-50 rounded-xl">
+            <div class="flex items-start gap-4 p-4 bg-brand-light rounded-xl">
                 <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold flex-shrink-0
-                    {% if rec.priority == 1 %}bg-red-500{% elif rec.priority == 2 %}bg-yellow-500{% else %}bg-gray-400{% endif %}">
+                    {% if rec.priority == 1 %}bg-danger{% elif rec.priority == 2 %}bg-warning{% else %}bg-fg-muted{% endif %}">
                     {{ rec.priority }}
                 </span>
-                <p class="text-gray-800">{{ rec.description }}</p>
+                <p class="text-fg">{{ rec.description }}</p>
             </div>
             {% endfor %}
         </div>
@@ -72,9 +72,9 @@
     {% endif %}
 
     {% elif analysis.status == 'failed' %}
-    <div class="bg-red-50 border border-red-200 rounded-2xl p-6">
-        <h2 class="text-xl font-bold text-red-800 mb-2">Analysis Failed</h2>
-        <p class="text-red-600">
+    <div class="bg-danger-bg border border-danger-border rounded-2xl p-6">
+        <h2 class="text-xl font-bold text-danger mb-2">Analysis Failed</h2>
+        <p class="text-danger">
             {% if 'Failed to resolve' in analysis.error_message %}
                 Could not reach this website. Please check the URL and try again.
             {% elif 'Connection' in analysis.error_message %}
@@ -88,9 +88,9 @@
     </div>
 
     {% else %}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-        <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-        <p class="text-gray-600">Analyzing your website...</p>
+    <div class="bg-surface rounded-2xl shadow-sm border border-line p-8 text-center">
+        <div class="animate-spin w-8 h-8 border-4 border-brand border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p class="text-fg-secondary">Analyzing your website...</p>
     </div>
     {% endif %}
 
@@ -98,23 +98,23 @@
 
     {% if analysis.status == 'completed' %}
     <a href="{% url 'reports:export_pdf' analysis.pk %}"
-       class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+       class="inline-flex items-center bg-brand text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-hover transition">
         Download PDF
     </a>
 
     <a href="{% url 'analysis:score_history' analysis.pk %}"
-       class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+       class="inline-flex items-center text-brand hover:text-brand-hover font-medium">
         View score history
     </a>
 
     <a href="{% url 'analysis:comparison' analysis.pk %}"
-       class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+       class="inline-flex items-center text-brand hover:text-brand-hover font-medium">
         Compare with competitors
     </a>
     {% endif %}
 
     <a href="{% url 'analysis:submit' %}"
-       class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+       class="inline-flex items-center text-brand hover:text-brand-hover font-medium">
         &larr; Analyze another URL
     </a>
 
