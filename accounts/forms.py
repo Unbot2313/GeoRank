@@ -31,7 +31,7 @@ class N8nPasswordResetForm(PasswordResetForm):
         to_email,
         html_email_template_name=None,
     ):
-        # Sin URL de n8n: respaldo con el correo de Django (consola en desarrollo)
+        # No n8n URL: fall back to Django's email backend (console in development)
         if not settings.N8N_WEBHOOK_URL:
             return super().send_mail(
                 subject_template_name,
@@ -56,7 +56,8 @@ class N8nPasswordResetForm(PasswordResetForm):
                 'expires_hours': settings.PASSWORD_RESET_TIMEOUT // 3600,
             })
         except N8nNotificationError:
-            # No propagamos el error: la respuesta debe ser igual exista o no el correo.
+            # Don't propagate the error: the response must look the same
+            # whether or not the email exists.
             logger.exception('Could not send password reset email via n8n.')
 
 

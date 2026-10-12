@@ -7,17 +7,27 @@ logger = logging.getLogger(__name__)
 
 
 class N8nNotificationError(Exception):
-    """Falló el envío de la notificación a n8n."""
+    """Sending the notification to n8n failed."""
 
 
-def trigger_workflow(event: str, payload: dict) -> None:
+def trigger_workflow(event, payload, *, url=None, files=None, timeout=None):
+    target_url = url or settings.N8N_WEBHOOK_URL
+    headers = {'X-GeoRank-Token': settings.N8N_WEBHOOK_SECRET}
+    data = {'event': event, **payload}
+    timeout = timeout or settings.N8N_TIMEOUT
+
     try:
-        response = requests.post(
-            settings.N8N_WEBHOOK_URL,
-            json={'event': event, **payload},
-            headers={'X-GeoRank-Token': settings.N8N_WEBHOOK_SECRET},
-            timeout=settings.N8N_TIMEOUT,
-        )
+        if files:
+            # multipart: n8n receives each file as binary data
+            response = requests.post(
+                target_url, data=data, files=files,
+                headers=headers, timeout=timeout,
+            )
+        else:
+            response = requests.post(
+                target_url, json=data,
+                headers=headers, timeout=timeout,
+            )
         response.raise_for_status()
     except requests.RequestException as exc:
         raise N8nNotificationError(
