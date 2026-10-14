@@ -59,6 +59,8 @@ Scope and priorities are tracked as MoSCoW-labeled issues in the [backlog](https
 | Dependency management | uv |
 | Version control | Git + GitHub |
 | Project management | GitHub Projects + Wiki |
+| Email delivery | n8n |
+
 
 ## Team
 
@@ -160,17 +162,34 @@ GeoRank/
 │   ├── urls.py
 │   ├── wsgi.py
 │   └── asgi.py
-├── analysis/             # URL analysis feature app
-│   ├── models.py         # Analysis, Score, Recommendation
-│   ├── views.py          # Submit URL, view results
-│   ├── forms.py          # URL input form
-│   ├── urls.py           # App routes
-│   ├── services/
-│   │   ├── scraper.py    # Web content extraction
-│   │   ├── gemini.py     # Gemini API integration
-│   │   └── pipeline.py   # Analysis orchestration
-│   └── templates/
-│       └── analysis/     # HTML templates (Tailwind)
+├── analysis/                     # Core analysis app
+│   ├── models.py                 # Competitor, Analysis, Score, Recommendation
+│   ├── views.py                  # Submit, results, history, competitors
+│   ├── forms.py                  # URL and competitor forms
+│   ├── urls.py                   # App routes
+│   ├── services/                 # Business logic
+│   │   ├── pipeline.py           # Analysis orchestration
+│   │   ├── scraper.py            # Web content extraction
+│   │   ├── gemini.py             # Google Gemini integration
+│   │   └── email.py              # "Report ready" notification
+│   └── templates/analysis/       # HTML templates (Tailwind)
+├── accounts/                     # User accounts and profiles
+│   ├── models.py                 # Company, UserProfile
+│   ├── views.py                  # Register, login, profile
+│   ├── forms.py                  # Auth and profile forms
+│   ├── urls.py                   # Account and password reset routes
+│   └── templates/accounts/       # Login, register, profile, password reset pages
+├── notifications/                # Notifications app
+│   └── services/
+│       └── n8n.py                # n8n webhook integration
+├── reports/                      # Reports app
+│   ├── views.py                  # PDF download
+│   └── services/
+│       └── pdf.py                # PDF generation
+├── static/                       # Static files
+│   ├── brand/                    # Logos, icons and favicons
+│   ├── css/tokens.css            # Design tokens (colors, spacing, typography)
+│   └── js/analysis-loading.js    # Loading state while an analysis runs
 ├── .env.example          # Environment variables template
 ├── manage.py
 ├── requirements.txt      # Pinned deps, generated from uv.lock
