@@ -3,13 +3,14 @@ import logging
 from ..models import Analysis, Recommendation, Score
 from .email import send_analysis_ready_email
 from .gemini import analyze_with_gemini
+from .groq_api import analyze_with_groq
 from .scraper import fetch_page_content
 
 
 logger = logging.getLogger(__name__)
 
 
-def run_analysis(url: str, user=None, competitor=None) -> Analysis:
+def run_analysis(url: str, user=None, competitor=None, ai_model: str = 'gemini') -> Analysis:
     industry_sector = ''
 
     if user is not None and hasattr(user, 'profile'):
@@ -21,6 +22,7 @@ def run_analysis(url: str, user=None, competitor=None) -> Analysis:
         user=user,
         competitor=competitor,
         industry_sector=industry_sector,
+        ai_model=ai_model,
     )
 
     try:
@@ -29,10 +31,17 @@ def run_analysis(url: str, user=None, competitor=None) -> Analysis:
         analysis.raw_content = str(content)
         analysis.save()
 
-        result = analyze_with_gemini(
-            content,
-            industry_sector=industry_sector,
-        )
+        if ai_model == 'gemini':
+            result = analyze_with_gemini(
+                content,
+                industry_sector=industry_sector,
+            )
+        else:
+            result = analyze_with_groq(
+                content,
+                industry_sector=industry_sector,
+                model=ai_model,
+            )
 
         Score.objects.create(
             analysis=analysis,

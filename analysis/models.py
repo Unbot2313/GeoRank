@@ -37,6 +37,11 @@ class Analysis(models.Model):
         ('completed', 'Completed'),
         ('failed', 'Failed'),
     ]
+    AI_MODEL_CHOICES = [
+        ('gemini', 'Gemini'),
+        ('gpt-oss', 'GPT-OSS'),
+        ('qwen', 'Qwen'),
+    ]
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -54,6 +59,7 @@ class Analysis(models.Model):
     url = models.URLField(max_length=500)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     industry_sector = models.CharField(max_length=100, blank=True)
+    ai_model = models.CharField(max_length=20, choices=AI_MODEL_CHOICES, default='gemini')
     raw_content = models.TextField(blank=True)
     error_message = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
