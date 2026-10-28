@@ -61,6 +61,7 @@ def submit_url(request):
             analysis = run_analysis(
                 url,
                 user=request.user,
+                ai_model=form.cleaned_data['ai_model'],
             )
 
             return redirect(
