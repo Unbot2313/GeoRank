@@ -3,7 +3,7 @@ from urllib.parse import urlparse, urlunparse
 from django import forms
 from django.core.validators import URLValidator
 
-from .models import Competitor
+from .models import Analysis, Competitor
 
 
 def normalize_url(raw: str) -> str:
@@ -42,11 +42,21 @@ class URLAnalysisForm(forms.Form):
         }),
     )
 
+    ai_model = forms.ChoiceField(
+        choices=Analysis.AI_MODEL_CHOICES,
+        initial='gemini',
+        required=False,
+        widget=forms.RadioSelect(attrs={'class': 'sr-only'}),
+    )
+
     def clean_url(self):
         url = self.cleaned_data['url']
         if not url.startswith(('http://', 'https://')):
             url = 'https://' + url
         return url
+
+    def clean_ai_model(self):
+        return self.cleaned_data['ai_model'] or 'gemini'
 
 class CompetitorForm(forms.Form):
     name = forms.CharField(

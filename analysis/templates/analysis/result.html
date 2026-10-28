@@ -7,11 +7,16 @@
     <div class="bg-surface rounded-2xl shadow-sm border border-line p-6">
         <p class="text-sm text-fg-muted mb-1">Analyzing</p>
         <h1 class="text-2xl font-bold text-fg break-all">{{ analysis.url }}</h1>
-        {% if analysis.industry_sector %}
-        <span class="inline-block mt-3 text-xs font-semibold uppercase tracking-wide text-brand bg-brand-light px-3 py-1 rounded-full">
-            {{ analysis.industry_sector }}
-        </span>
-        {% endif %}
+        <div class="flex flex-wrap gap-2 mt-3">
+            {% if analysis.industry_sector %}
+            <span class="inline-block text-xs font-semibold uppercase tracking-wide text-brand bg-brand-light px-3 py-1 rounded-full">
+                {{ analysis.industry_sector }}
+            </span>
+            {% endif %}
+            <span class="inline-block text-xs font-semibold uppercase tracking-wide text-fg-secondary bg-overlay-strong px-3 py-1 rounded-full">
+                Analyzed with {{ analysis.get_ai_model_display }}
+            </span>
+        </div>
     </div>
 
     {% if analysis.status == 'completed' %}

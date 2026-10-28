@@ -478,3 +478,89 @@ class PdfExportTests(TestCase):
             response.status_code,
             404,
         )
+
+class MultiAIAnalysisTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='multi_ai_user',
+            email='multi-ai@example.com',
+            password='TestPass123!',
+        )
+        self.content = {
+            'title': 'Example',
+            'meta_description': 'An example site',
+            'headings': ['Welcome'],
+            'body_text': 'Some content',
+        }
+        self.success_result = {
+            'visibility_score': 60,
+            'readability_score': 70,
+            'citability_score': 50,
+            'recommendations': [],
+            'sector_recommendations': [],
+        }
+
+    @patch('analysis.services.pipeline.analyze_with_groq')
+    @patch('analysis.services.pipeline.analyze_with_gemini')
+    @patch('analysis.services.pipeline.fetch_page_content')
+    def test_groq_model_is_used_when_selected(self, mock_fetch, mock_gemini, mock_groq):
+        mock_fetch.return_value = self.content
+        mock_groq.return_value = self.success_result
+
+        analysis = run_analysis('https://example.com', user=self.user, ai_model='qwen')
+
+        self.assertEqual(analysis.status, 'completed')
+        self.assertEqual(analysis.ai_model, 'qwen')
+        mock_gemini.assert_not_called()
+        self.assertEqual(mock_groq.call_args.kwargs['model'], 'qwen')
+
+    @patch('analysis.services.pipeline.analyze_with_groq')
+    @patch('analysis.services.pipeline.analyze_with_gemini')
+    @patch('analysis.services.pipeline.fetch_page_content')
+    def test_gemini_is_the_default_model(self, mock_fetch, mock_gemini, mock_groq):
+        mock_fetch.return_value = self.content
+        mock_gemini.return_value = self.success_result
+
+        analysis = run_analysis('https://example.com', user=self.user)
+
+        self.assertEqual(analysis.ai_model, 'gemini')
+        mock_groq.assert_not_called()
+
+    @patch.dict('os.environ', {'GROQ_API_KEY': 'test-key'})
+    @patch('analysis.services.groq_api.requests.post')
+    def test_groq_request_uses_model_id_and_parses_json(self, mock_post):
+        from analysis.services.groq_api import analyze_with_groq
+
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.ok = True
+        mock_post.return_value.json.return_value = {
+            'choices': [{'message': {'content': '{"visibility_score": 60}'}}],
+        }
+
+        result = analyze_with_groq(self.content, model='gpt-oss')
+
+        self.assertEqual(result, {'visibility_score': 60})
+        payload = mock_post.call_args.kwargs['json']
+        self.assertEqual(payload['model'], 'openai/gpt-oss-120b')
+        self.assertEqual(payload['response_format'], {'type': 'json_object'})
+        self.assertEqual(mock_post.call_args.kwargs['headers']['Authorization'], 'Bearer test-key')
+
+    @patch.dict('os.environ', {'GROQ_API_KEY': ''})
+    @patch('analysis.services.pipeline.fetch_page_content')
+    def test_missing_groq_key_marks_analysis_as_failed(self, mock_fetch):
+        mock_fetch.return_value = self.content
+
+        analysis = run_analysis('https://example.com', user=self.user, ai_model='gpt-oss')
+
+        self.assertEqual(analysis.status, 'failed')
+        self.assertIn('GROQ_API_KEY', analysis.error_message)
+
+    def test_form_defaults_to_gemini_and_rejects_unknown_models(self):
+        from analysis.forms import URLAnalysisForm
+
+        form = URLAnalysisForm(data={'url': 'example.com'})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['ai_model'], 'gemini')
+
+        form = URLAnalysisForm(data={'url': 'example.com', 'ai_model': 'unknown'})
+        self.assertFalse(form.is_valid())
