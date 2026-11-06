@@ -9,6 +9,10 @@
         <p class="text-base sm:text-lg text-fg-secondary">
             Get an AI visibility score and actionable recommendations to be cited by ChatGPT, Perplexity, and Gemini.
         </p>
+        <div class="mt-4 text-left bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-sm text-blue-800">
+            <p class="font-semibold mb-1">How to get the best analysis</p>
+            <p>Enter the complete public URL of the website you want to review, including <code>https://</code>. The site must be reachable without a login.</p>
+        </div>
     </div>
 
     {% if profile.plan_type == 'free' %}
@@ -29,6 +33,7 @@
             <div>
                 <label for="id_url" class="block text-sm font-medium text-fg-secondary mb-2">Website URL</label>
                 {{ form.url }}
+                <p class="mt-2 text-xs text-gray-500">Example: https://example.com</p>
                 {% if form.url.errors %}
                 <p class="mt-2 text-sm text-danger">{{ form.url.errors.0 }}</p>
                 {% endif %}
