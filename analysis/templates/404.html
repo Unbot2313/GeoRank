@@ -1,0 +1,23 @@
+{% extends "analysis/base.html" %}
+
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto text-center">
+    <p class="text-sm font-semibold uppercase tracking-wide text-blue-600 mb-3">Error 404</p>
+    <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">Page not found</h1>
+    <p class="text-lg text-gray-600 mb-8">
+        We couldn't find the page you're looking for. It may have moved or the link may be incorrect.
+    </p>
+    <div class="flex flex-wrap justify-center gap-3">
+        <a href="{% url 'home' %}"
+           class="inline-flex items-center bg-blue-600 text-white px-5 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+            Go to home
+        </a>
+        <a href="{% url 'accounts:login' %}"
+           class="inline-flex items-center border border-gray-200 text-gray-700 px-5 py-3 rounded-lg font-semibold hover:border-gray-300 transition">
+            Log in
+        </a>
+    </div>
+</div>
+{% endblock %}

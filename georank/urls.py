@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import include, path
 
-from django.shortcuts import redirect
+from georank.views import page_not_found
 
 def home_redirect(request):
     if request.user.is_authenticated:
@@ -27,8 +27,10 @@ def home_redirect(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home_redirect),
+    path('', home_redirect, name='home'),
     path('', include('accounts.urls')),
     path('', include('analysis.urls')),
     path('', include('reports.urls')),
 ]
+
+handler404 = 'georank.views.page_not_found'
